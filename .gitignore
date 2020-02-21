@@ -1,0 +1,9 @@
+build/
+dist/
+.tox
+*.egg-info/
+*.pyc
+.coverage
+coverage.xml
+nosetests.xml
+pycodestyle.txt
