@@ -3,7 +3,7 @@
 '''
 '''
 
-from datetime import (date, timedelta, datetime)
+from datetime import (timedelta, datetime)
 import json
 import requests
 import sys
@@ -46,6 +46,7 @@ if __name__ == "__main__":
     now = datetime.now()
     message = compute_message(now, conf)
     if message:
+        print(message, sys.argv[3], file=sys.stderr)
         data = json_message(message, sys.argv[3])
         send_message(data, sys.argv[2])
     else:
