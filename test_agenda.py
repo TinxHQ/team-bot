@@ -9,10 +9,6 @@ import agenda
 
 class TestAgenda(unittest.TestCase):
 
-    def test_message(self):
-        self.assertEqual(agenda.json_message('toto', '@fred'),
-                         '{"text": "toto", "channel": "@fred"}')
-
     def test_load_conf(self):
         self.assertEqual(agenda.load_conf(StringIO(CONF)),
                          {'messages': {0: {'offset': 3,

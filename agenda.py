@@ -10,15 +10,13 @@ import sys
 import yaml
 
 
-def json_message(message, channel=None):
+def send_message(url, message, channel=None):
     data = {'text': message}
     if channel:
         data['channel'] = channel
-    return json.dumps(data)
-
-
-def send_message(data, url):
-    requests.post(url, data=data)
+    resp = requests.post(url, data=json.dumps(data))
+    resp.raise_for_status()
+    return resp
 
 
 def load_conf(stream):
@@ -47,8 +45,7 @@ if __name__ == "__main__":
     message = compute_message(now, conf)
     if message:
         print(message, sys.argv[3], file=sys.stderr)
-        data = json_message(message, sys.argv[3])
-        send_message(data, sys.argv[2])
+        send_message(sys.argv[2], message, sys.argv[3])
     else:
         print('No message today', file=sys.stderr)
 
