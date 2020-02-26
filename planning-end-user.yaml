@@ -20,7 +20,7 @@ messages:
     offset: 1
   # Thursday week1
   6:
-    text: "# %Y-%m-%d"
+    text: "# %Y-%m-%d Sprint Review"
     offset: 1
   # Friday week1
   7:
@@ -32,7 +32,7 @@ messages:
     offset: 1
   # Tuesday week2
   11:
-    text: "# %Y-%m-%d"
+    text: "# %Y-%m-%d Sprint Review"
     offset: 1
   # Wednesday week2
   12:
