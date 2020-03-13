@@ -11,7 +11,8 @@ import yaml
 
 
 def send_message(url, message, channel=None):
-    data = {'text': message}
+    msg = "\n".join(message.split('\\n'))
+    data = {'text': msg}
     if channel:
         data['channel'] = channel
     resp = requests.post(url, data=json.dumps(data))
