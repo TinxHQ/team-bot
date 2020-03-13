@@ -4,7 +4,7 @@ start: 2020-02-21
 messages:
   # Friday week0
   0:
-    text: "# %Y-%m-%d Planning & Grooming Subject"
+    text: "# %Y-%m-%d Planning\n**Discuss**\n* Grooming subjects"
     offset: 3
   # Monday week1
   3:
