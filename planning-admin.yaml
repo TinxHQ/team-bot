@@ -32,7 +32,7 @@ messages:
     offset: 1
   # Tuesday week2
   11:
-    text: "# %Y-%m-%d\nNote:\n\n- Sprint Review"
+    text: "# %Y-%m-%d\nNote:\n\n- Sprint Review\n- Grooming Subject"
     offset: 1
   # Wednesday week2
   12:
