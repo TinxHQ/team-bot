@@ -11,11 +11,12 @@ import yaml
 
 
 def send_message(url, message, channel=None):
+    headers = {'Content-Type': 'application/json'}
     msg = "\n".join(message.split('\\n'))
     data = {'text': msg}
     if channel:
         data['channel'] = channel
-    resp = requests.post(url, data=json.dumps(data))
+    resp = requests.post(url, headers=headers, data=json.dumps(data))
     resp.raise_for_status()
     return resp
 
