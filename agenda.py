@@ -1,13 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-'''
-'''
-
-from datetime import (timedelta, datetime)
-import json
 import requests
 import sys
 import yaml
+
+from datetime import (timedelta, datetime)
 
 
 def send_message(url, message, channel=None):
@@ -50,5 +47,3 @@ if __name__ == "__main__":
         send_message(sys.argv[2], message, sys.argv[3])
     else:
         print('No message today', file=sys.stderr)
-
-# agenda.py ends here
