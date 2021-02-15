@@ -13,7 +13,7 @@ def send_message(url, message, channel=None):
     data = {'text': msg}
     if channel:
         data['channel'] = channel
-    resp = requests.post(url, headers=headers, data=json.dumps(data))
+    resp = requests.post(url, headers=headers, json=data)
     resp.raise_for_status()
     return resp
 
