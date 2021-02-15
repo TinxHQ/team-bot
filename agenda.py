@@ -36,14 +36,19 @@ def compute_message(today, conf):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    try:
+        conf_file_path = sys.argv[1]
+        mattermost_url = sys.argv[2]
+        mattermost_channel = sys.argv[3]
+    except IndexError:
         print('Usage: %s <conf> <url> <chan>' % sys.argv[0], file=sys.stderr)
         sys.exit(1)
-    conf = load_conf(open(sys.argv[1]))
+
+    conf = load_conf(open(conf_file_path))
     now = datetime.now()
     message = compute_message(now, conf)
     if message:
-        print(message, sys.argv[3], file=sys.stderr)
-        send_message(sys.argv[2], message, sys.argv[3])
+        print(message, mattermost_channel, file=sys.stderr)
+        send_message(mattermost_url, message, mattermost_channel)
     else:
         print('No message today', file=sys.stderr)
