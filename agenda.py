@@ -4,7 +4,7 @@ import requests
 import sys
 import yaml
 
-from datetime import (timedelta, datetime)
+from datetime import timedelta, datetime
 
 
 def send_message(url, message, channel=None):
