@@ -27,11 +27,17 @@ def load_conf(stream):
 def compute_message(today, conf):
     delta = today - conf['start']
     idx = delta.days % conf['period']
+    message_lines = []
     if idx in conf['messages']:
         data = conf['messages'][idx]
         new_date = today + timedelta(data['offset'])
         msg = new_date.strftime(data['text'])
-        return msg
+        message_lines.append(msg)
+        if conf['recurring_messages']:
+            for recurring_msg in conf['recurring_messages']:
+                message_lines.append(new_date.strftime(recurring_msg['text']))
+    if message_lines:
+        return "\n".join(message_lines)
     return None
 
 
