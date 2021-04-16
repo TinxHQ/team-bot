@@ -8,7 +8,7 @@ recurring_messages:
 messages:
   # Friday week0
   0:
-    text: "Note:\n\n- Planning\n"
+    text: "Note:\n\n- Planning"
     offset: 3
   # Monday week1
   3:
