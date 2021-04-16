@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import datetime
-from io import StringIO
 import unittest
+
+from io import StringIO
 
 import agenda
 
@@ -37,13 +38,19 @@ class TestAgenda(unittest.TestCase):
     def test_compute_message(self):
         conf = agenda.load_conf(StringIO(CONF))
         now = datetime.datetime(2020, 2, 21, 17, 0)
-        self.assertEqual(agenda.compute_message(now, conf), '# 2020-02-24\nAnother before\n- Planning\nDaily note on 2020-02-24')
+        self.assertEqual(
+            agenda.compute_message(now, conf),
+            '# 2020-02-24\nAnother before\n- Planning\nDaily note on 2020-02-24',
+        )
         now = datetime.datetime(2020, 2, 22, 17, 0)
         self.assertEqual(agenda.compute_message(now, conf), None)
         now = datetime.datetime(2020, 2, 23, 17, 0)
         self.assertEqual(agenda.compute_message(now, conf), None)
         now = datetime.datetime(2020, 2, 24, 17, 0)
-        self.assertEqual(agenda.compute_message(now, conf), '# 2020-02-25\nAnother before\n- Grooming\nDaily note on 2020-02-25')
+        self.assertEqual(
+            agenda.compute_message(now, conf),
+            '# 2020-02-25\nAnother before\n- Grooming\nDaily note on 2020-02-25',
+        )
 
 
 CONF = '''
@@ -69,5 +76,3 @@ messages:
 
 if __name__ == "__main__":
     unittest.main()
-
-# test_agenda.py ends here
