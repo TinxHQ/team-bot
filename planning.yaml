@@ -1,64 +1,58 @@
 ---
 period: 21
 start: 2021-01-01
+recurring_messages:
+  - text: "***\n# %Y-%m-%d"
+    before: true
+  - text: "- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
 messages:
   # Friday week0
   0:
-    text: "***\n# %Y-%m-%d\nNote:\n\n- Planning\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
+    text: "Note:\n\n- Planning\n"
     offset: 3
   # Monday week1
   3:
-    text: "***\n# %Y-%m-%d\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
     offset: 1
   # Tuesday week1
   4:
-    text: "***\n# %Y-%m-%d\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
     offset: 1
   # Wednesday week1
   5:
-    text: "***\n# %Y-%m-%d\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
     offset: 1
   # Thursday week1
   6:
-    text: "***\n# %Y-%m-%d\nNote:\n\n- Sprint Review\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
+    text: "Note:\n\n- Sprint Review"
     offset: 1
   # Friday week1
   7:
-    text: "***\n# %Y-%m-%d\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
     offset: 3
   # Monday week2
   10:
-    text: "***\n# %Y-%m-%d\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
     offset: 1
   # Tuesday week2
   11:
-    text: "***\n# %Y-%m-%d\nNote:\n\n- Sprint Review\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
+    text: "Note:\n\n- Sprint Review"
     offset: 1
   # Wednesday week2
   12:
-    text: "***\n# %Y-%m-%d\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
     offset: 1
   # Thursday week2
   13:
-    text: "***\n# %Y-%m-%d\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
     offset: 1
   # Friday week2
   14:
-    text: "***\n# %Y-%m-%d\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
     offset: 3
   # Monday week3
   17:
-    text: "***\n# %Y-%m-%d\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
     offset: 1
   # Tuesday week3
   18:
-    text: "***\n# %Y-%m-%d\n\n- Freeze\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
+    text: "\n- Freeze"
     offset: 1
   # Wednesday week3
   19:
-    text: "***\n# %Y-%m-%d\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
     offset: 1
   # Thursday week3
   20:
-    text: "***\n# %Y-%m-%d\nNote:\n\n- Retro\n- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
+    text: "Note:\n\n- Retro"
     offset: 1
