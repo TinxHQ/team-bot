@@ -54,5 +54,5 @@ messages:
     offset: 1
   # Thursday week3
   20:
-    text: "Note:\n\n- Retro"
+    text: "Note:\n\n- Retro (@retro-manager prepare it!)"
     offset: 1
