@@ -28,6 +28,7 @@ class TestAgenda(unittest.TestCase):
                 ],
                 'messages': {
                     0: {'offset': 3, 'text': '- Planning'},
+                    2: {'offset': 0},
                     3: {'offset': 1, 'text': '- Grooming'},
                 },
                 'period': 21,
@@ -45,7 +46,10 @@ class TestAgenda(unittest.TestCase):
         now = datetime.datetime(2020, 2, 22, 17, 0)
         self.assertEqual(agenda.compute_message(now, conf), None)
         now = datetime.datetime(2020, 2, 23, 17, 0)
-        self.assertEqual(agenda.compute_message(now, conf), None)
+        self.assertEqual(
+            agenda.compute_message(now, conf),
+            '# 2020-02-23\nAnother before\nDaily note on 2020-02-23',
+        )
         now = datetime.datetime(2020, 2, 24, 17, 0)
         self.assertEqual(
             agenda.compute_message(now, conf),
@@ -68,6 +72,8 @@ messages:
   0:
     text: "- Planning"
     offset: 3
+  2:
+    offset: 0
   # Monday week1
   3:
     text: "- Grooming"

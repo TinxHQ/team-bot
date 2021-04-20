@@ -32,8 +32,9 @@ def compute_message(today, conf):
     if idx in conf['messages']:
         data = conf['messages'][idx]
         new_date = today + timedelta(data['offset'])
-        msg = new_date.strftime(data['text'])
-        message_lines.append(msg)
+        if data.get('text'):
+            msg = new_date.strftime(data['text'])
+            message_lines.append(msg)
         if conf['recurring_messages']:
             for recurring_msg in conf['recurring_messages']:
                 list_to_append = (
