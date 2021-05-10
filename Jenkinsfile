@@ -18,6 +18,7 @@ pipeline {
           currentBuild.description = "Teambot run for the day"
         }
         checkout scm
+        sh 'pip3 install -r requirements.txt'
       }
     }
 
