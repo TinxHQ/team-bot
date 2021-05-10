@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 
+import github3
 import requests
 import sys
 import yaml
 
 from datetime import timedelta, datetime
+
+GITHUB_SEARCH_QUERY = r'is:open is:pr archived:false user:wazo-platform user:TinxHQ user:wazo-communication sort:updated-asc label:mergeit'
+MAX_SEARCH = 10
 
 
 def send_message(url, message, channel=None):
@@ -47,6 +51,20 @@ def compute_message(today, conf):
     if message_lines:
         return "\n".join(message_lines)
     return None
+
+
+def find_old_github_prs():
+    gh = github3.GitHub()
+    search_results = gh.search_issues(GITHUB_SEARCH_QUERY, number=MAX_SEARCH)
+    old_prs = []
+    for result in search_results:
+        pr = result.issue.pull_request()
+        updated = pr.updated_at
+        age = (datetime.now() - updated).days
+        line = f'- **{age} days**: [{pr.title} ({pr.repository.fullname}#{pr.number})]({pr.html_url})'
+        old_prs.append(line)
+
+    return old_prs
 
 
 if __name__ == "__main__":
