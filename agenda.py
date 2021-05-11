@@ -47,18 +47,28 @@ def compute_message(today, conf):
                     else message_lines
                 )
                 list_to_append.append(new_date.strftime(recurring_msg['text']))
+
+        if data.get('github_old_prs'):
+            message_lines.append(find_old_github_prs())
+
     message_lines = before_message_lines + message_lines
     if message_lines:
         return "\n".join(message_lines)
     return None
 
 
+def get_github_prs(github, search_query):
+    return [
+        result.issue.pull_request()
+        for result in github.search_issues(search_query, number=MAX_SEARCH)
+    ]
+
+
 def find_old_github_prs():
-    gh = github3.GitHub()
-    search_results = gh.search_issues(GITHUB_SEARCH_QUERY, number=MAX_SEARCH)
+    github = github3.GitHub()
+    prs = get_github_prs(github, GITHUB_SEARCH_QUERY)
     old_prs = []
-    for result in search_results:
-        pr = result.issue.pull_request()
+    for pr in prs:
         updated = pr.updated_at
         age = (datetime.now() - updated).days
         line = f'- **{age} days**: [{pr.title} ({pr.repository.fullname}#{pr.number})]({pr.html_url})'
