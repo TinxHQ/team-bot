@@ -49,7 +49,7 @@ def compute_message(today, conf):
                 list_to_append.append(new_date.strftime(recurring_msg['text']))
 
         if data.get('github_old_prs'):
-            message_lines.append(find_old_github_prs())
+            message_lines.append(find_old_github_prs(conf['old_pr_threshold']))
 
     message_lines = before_message_lines + message_lines
     if message_lines:
@@ -64,15 +64,16 @@ def get_github_prs(github, search_query):
     ]
 
 
-def find_old_github_prs():
+def find_old_github_prs(day_threshold):
     github = github3.GitHub()
     prs = get_github_prs(github, GITHUB_SEARCH_QUERY)
     old_prs = []
     for pr in prs:
         updated = pr.updated_at
         age = (datetime.now() - updated).days
-        line = f'- **{age} days**: [{pr.title} ({pr.repository.fullname}#{pr.number})]({pr.html_url})'
-        old_prs.append(line)
+        if age >= day_threshold:
+            line = f'- **{age} days**: [{pr.title} ({pr.repository.fullname}#{pr.number})]({pr.html_url})'
+            old_prs.append(line)
 
     return old_prs
 

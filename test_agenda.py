@@ -12,6 +12,7 @@ CONF = '''
 ---
 period: 21
 start: 2020-02-21
+old_pr_threshold: 4
 recurring_messages:
   - text: "Daily note on %Y-%m-%d"
   - text: "# %Y-%m-%d"
@@ -57,6 +58,7 @@ class TestAgenda(unittest.TestCase):
                 },
                 'period': 21,
                 'start': datetime.datetime(2020, 2, 21, 0, 0),
+                'old_pr_threshold': 4,
             },
         )
 
@@ -92,7 +94,7 @@ class TestAgenda(unittest.TestCase):
                 html_url='an_url',
             ),
         ]
-        prs = agenda.find_old_github_prs()
+        prs = agenda.find_old_github_prs(4)
         age = (datetime.datetime.now() - pr_date).days
         expected_lines = [f'- **{age} days**: [Test PR (test/test_repo#42)](an_url)']
         self.assertEqual(prs, expected_lines)
@@ -117,7 +119,7 @@ class TestAgenda(unittest.TestCase):
                 html_url='an_url2',
             ),
         ]
-        prs = agenda.find_old_github_prs()
+        prs = agenda.find_old_github_prs(4)
         pr1_age = (datetime.datetime.now() - pr1_date).days
         pr2_age = (datetime.datetime.now() - pr2_date).days
         expected_lines = [
@@ -128,8 +130,16 @@ class TestAgenda(unittest.TestCase):
 
     @patch('agenda.get_github_prs')
     def test_github_no_old_pr(self, github_results):
-        github_results.return_value = []
-        prs = agenda.find_old_github_prs()
+        github_results.return_value = [
+            MagicMock(
+                updated_at=datetime.datetime.now(),
+                title='Young PR',
+                repository=MagicMock(fullname='test/test_repo'),
+                number=44,
+                html_url='an_url3',
+            ),
+        ]
+        prs = agenda.find_old_github_prs(4)
         expected_lines = []
         self.assertEqual(prs, expected_lines)
 
