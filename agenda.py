@@ -11,8 +11,8 @@ from datetime import timedelta, datetime
 GITHUB_SEARCH_QUERY = r'is:open is:pr archived:false user:wazo-platform user:TinxHQ user:wazo-communication sort:updated-asc label:mergeit'
 MAX_SEARCH = 10
 
-GITHUB_USER = os.environ.get('GITHUB_CREDS_USR')
-GITHUB_PASSWORD = os.environ.get('GITHUB_CREDS_PSW')
+GITHUB_USER = os.getenv('GITHUB_CREDS_USR')
+GITHUB_PASSWORD = os.getenv('GITHUB_CREDS_PSW')
 
 
 def send_message(url, message, channel=None):
