@@ -2,6 +2,7 @@
 
 import github3
 import os
+import pytz
 import requests
 import sys
 import yaml
@@ -79,14 +80,16 @@ def get_github_prs(github, search_query):
 
 def find_old_github_prs(day_threshold):
     github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
-    search_date = datetime.now() - timedelta(days=day_threshold)
+    mtl_time = pytz.timezone('America/Montreal')
+    time_now_mtl = mtl_time.localize(datetime.now())
+    search_date = time_now_mtl - timedelta(days=day_threshold)
     search_date_iso = search_date.isoformat()
     query = GITHUB_SEARCH_QUERY_PARTS + [f'updated:<={search_date_iso}']
     prs = get_github_prs(github, ' '.join(query))
     old_prs = []
     for pr in prs:
         updated = pr.updated_at
-        age = (datetime.now() - updated).days
+        age = (time_now_mtl - updated).days
         line = f'- **{age} days**: [{pr.title} ({pr.repository.fullname}#{pr.number})]({pr.html_url})'
         old_prs.append(line)
     if not old_prs:
