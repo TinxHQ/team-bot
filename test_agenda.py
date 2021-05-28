@@ -97,7 +97,7 @@ class TestAgenda(unittest.TestCase):
             MagicMock(
                 updated_at=pr_date,
                 title='Test PR',
-                repository=MagicMock(fullname='test/test_repo'),
+                repository=MagicMock(full_name='test/test_repo'),
                 number=42,
                 html_url='an_url',
             ),
@@ -115,14 +115,14 @@ class TestAgenda(unittest.TestCase):
             MagicMock(
                 updated_at=pr1_date,
                 title='Test PR',
-                repository=MagicMock(fullname='test/test_repo'),
+                repository=MagicMock(full_name='test/test_repo'),
                 number=42,
                 html_url='an_url',
             ),
             MagicMock(
                 updated_at=pr2_date,
                 title='Test PR 2',
-                repository=MagicMock(fullname='test/test_repo2'),
+                repository=MagicMock(full_name='test/test_repo2'),
                 number=43,
                 html_url='an_url2',
             ),
@@ -144,7 +144,7 @@ class TestAgenda(unittest.TestCase):
             MagicMock(
                 updated_at=datetime.datetime.now(),
                 title='Young PR',
-                repository=MagicMock(fullname='test/test_repo'),
+                repository=MagicMock(full_name='test/test_repo'),
                 number=44,
                 html_url='an_url3',
             ),

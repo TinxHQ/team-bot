@@ -90,7 +90,7 @@ def find_old_github_prs(day_threshold):
     for pr in prs:
         updated = pr.updated_at
         age = (time_now_mtl - updated).days
-        line = f'- **{age} days**: [{pr.title} ({pr.repository.fullname}#{pr.number})]({pr.html_url})'
+        line = f'- **{age} days**: [{pr.title} ({pr.repository.full_name}#{pr.number})]({pr.html_url})'
         old_prs.append(line)
     if not old_prs:
         old_prs.append('- None, congratulations!')
