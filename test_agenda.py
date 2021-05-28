@@ -19,6 +19,8 @@ recurring_messages:
     before: true
   - text: "Another before"
     before: true
+  - text: "## Old PRs:"
+    github_old_prs: True
 messages:
   # Friday week0
   0:
@@ -50,6 +52,10 @@ class TestAgenda(unittest.TestCase):
                         'text': 'Another before',
                         'before': True,
                     },
+                    {
+                        'text': '## Old PRs:',
+                        'github_old_prs': True,
+                    },
                 ],
                 'messages': {
                     0: {'offset': 3, 'text': '- Planning'},
@@ -62,24 +68,26 @@ class TestAgenda(unittest.TestCase):
             },
         )
 
-    def test_compute_message(self):
+    @patch('agenda.get_github_prs')
+    def test_compute_message_no_old_pr(self, github_results):
         conf = agenda.load_conf(StringIO(CONF))
         now = datetime.datetime(2020, 2, 21, 17, 0)
+        github_results.return_value = []
         self.assertEqual(
             agenda.compute_message(now, conf),
-            '# 2020-02-24\nAnother before\n- Planning\nDaily note on 2020-02-24',
+            '# 2020-02-24\nAnother before\n- Planning\nDaily note on 2020-02-24\n## Old PRs:\n- None, congratulations!',
         )
         now = datetime.datetime(2020, 2, 22, 17, 0)
         self.assertEqual(agenda.compute_message(now, conf), None)
         now = datetime.datetime(2020, 2, 23, 17, 0)
         self.assertEqual(
             agenda.compute_message(now, conf),
-            '# 2020-02-23\nAnother before\nDaily note on 2020-02-23',
+            '# 2020-02-23\nAnother before\nDaily note on 2020-02-23\n## Old PRs:\n- None, congratulations!',
         )
         now = datetime.datetime(2020, 2, 24, 17, 0)
         self.assertEqual(
             agenda.compute_message(now, conf),
-            '# 2020-02-25\nAnother before\n- Grooming\nDaily note on 2020-02-25',
+            '# 2020-02-25\nAnother before\n- Grooming\nDaily note on 2020-02-25\n## Old PRs:\n- None, congratulations!',
         )
 
     @patch('agenda.get_github_prs')
@@ -128,6 +136,8 @@ class TestAgenda(unittest.TestCase):
         ]
         self.assertEqual(prs, expected_lines)
 
+
+
     @patch('agenda.get_github_prs')
     def test_github_no_old_pr(self, github_results):
         github_results.return_value = [
@@ -140,7 +150,7 @@ class TestAgenda(unittest.TestCase):
             ),
         ]
         prs = agenda.find_old_github_prs(4)
-        expected_lines = []
+        expected_lines = ['- None, congratulations!']
         self.assertEqual(prs, expected_lines)
 
 

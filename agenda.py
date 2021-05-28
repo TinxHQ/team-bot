@@ -8,7 +8,7 @@ import yaml
 
 from datetime import timedelta, datetime
 
-GITHUB_SEARCH_QUERY = r'is:open is:pr archived:false user:wazo-platform user:TinxHQ user:wazo-communication sort:updated-asc label:mergeit'
+GITHUB_SEARCH_QUERY = r'is:open is:pr archived:false user:wazo-platform user:TinxHQ user:wazo-communication sort:updated-asc label:mergeit label:"🙏 Please review"'
 MAX_SEARCH = 10
 
 GITHUB_USER = os.getenv('GITHUB_CREDS_USR')
@@ -52,8 +52,8 @@ def compute_message(today, conf):
                 )
                 list_to_append.append(new_date.strftime(recurring_msg['text']))
 
-        if data.get('github_old_prs'):
-            message_lines.append(find_old_github_prs(conf['old_pr_threshold']))
+            if recurring_msg.get('github_old_prs'):
+                message_lines.extend(find_old_github_prs(conf['old_pr_threshold']))
 
     message_lines = before_message_lines + message_lines
     if message_lines:
@@ -78,7 +78,8 @@ def find_old_github_prs(day_threshold):
         if age >= day_threshold:
             line = f'- **{age} days**: [{pr.title} ({pr.repository.fullname}#{pr.number})]({pr.html_url})'
             old_prs.append(line)
-
+    if not old_prs:
+        old_prs.append('- None, congratulations!')
     return old_prs
 
 
