@@ -8,7 +8,16 @@ import yaml
 
 from datetime import timedelta, datetime
 
-GITHUB_SEARCH_QUERY = r'is:open is:pr archived:false user:wazo-platform user:TinxHQ user:wazo-communication sort:updated-asc label:mergeit label:"🙏 Please review"'
+GITHUB_SEARCH_QUERY_PARTS = [
+    'is:open',
+    'is:pr',
+    'archived:false',
+    'user:wazo-platform',
+    'user:TinxHQ',
+    'user:wazo-communication',
+    'sort:updated-desc',
+    'label:mergeit',
+]
 MAX_SEARCH = 10
 
 GITHUB_USER = os.getenv('GITHUB_CREDS_USR')
@@ -70,14 +79,16 @@ def get_github_prs(github, search_query):
 
 def find_old_github_prs(day_threshold):
     github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
-    prs = get_github_prs(github, GITHUB_SEARCH_QUERY)
+    search_date = datetime.now() - timedelta(days=day_threshold)
+    search_date_iso = search_date.isoformat()
+    query = GITHUB_SEARCH_QUERY_PARTS + [f'updated:<={search_date_iso}']
+    prs = get_github_prs(github, ' '.join(query))
     old_prs = []
     for pr in prs:
         updated = pr.updated_at
         age = (datetime.now() - updated).days
-        if age >= day_threshold:
-            line = f'- **{age} days**: [{pr.title} ({pr.repository.fullname}#{pr.number})]({pr.html_url})'
-            old_prs.append(line)
+        line = f'- **{age} days**: [{pr.title} ({pr.repository.fullname}#{pr.number})]({pr.html_url})'
+        old_prs.append(line)
     if not old_prs:
         old_prs.append('- None, congratulations!')
     return old_prs
