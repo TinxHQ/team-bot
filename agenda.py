@@ -12,7 +12,7 @@ GITHUB_SEARCH_QUERY = r'is:open is:pr archived:false user:wazo-platform user:Tin
 MAX_SEARCH = 10
 
 GITHUB_USER = os.environ.get('GITHUB_CREDS_USR')
-GITHUB_PASSWORD = os.environ.get('GITHUB_CREDS_PWD')
+GITHUB_PASSWORD = os.environ.get('GITHUB_CREDS_PSW')
 
 
 def send_message(url, message, channel=None):
