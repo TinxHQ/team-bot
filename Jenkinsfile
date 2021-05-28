@@ -23,6 +23,9 @@ pipeline {
     }
 
     stage ('Run') {
+      environment {
+        GITHUB_CREDS = credentials('github-jenkins-wazo-bot')
+      }
       steps {
         sh 'python3 ./agenda.py planning.yaml "$MATTERMOST_HOOK_URL" dev-daily-scrum'
       }

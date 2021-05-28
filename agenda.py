@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import github3
+import os
 import requests
 import sys
 import yaml
@@ -9,6 +10,9 @@ from datetime import timedelta, datetime
 
 GITHUB_SEARCH_QUERY = r'is:open is:pr archived:false user:wazo-platform user:TinxHQ user:wazo-communication sort:updated-asc label:mergeit'
 MAX_SEARCH = 10
+
+GITHUB_USER = os.environ.get('GITHUB_CREDS_USR')
+GITHUB_PASSWORD = os.environ.get('GITHUB_CREDS_PWD')
 
 
 def send_message(url, message, channel=None):
@@ -65,7 +69,7 @@ def get_github_prs(github, search_query):
 
 
 def find_old_github_prs(day_threshold):
-    github = github3.GitHub()
+    github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
     prs = get_github_prs(github, GITHUB_SEARCH_QUERY)
     old_prs = []
     for pr in prs:
