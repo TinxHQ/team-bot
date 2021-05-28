@@ -2,6 +2,7 @@
 
 import datetime
 import unittest
+import pytz
 
 from io import StringIO
 from unittest.mock import MagicMock, patch
@@ -33,6 +34,8 @@ messages:
     text: "- Grooming"
     offset: 1
 '''
+
+MTL_TZ = pytz.timezone('America/Montreal')
 
 
 class TestAgenda(unittest.TestCase):
@@ -92,7 +95,7 @@ class TestAgenda(unittest.TestCase):
 
     @patch('agenda.get_github_prs')
     def test_github_only_one_old_pr(self, github_results):
-        pr_date = datetime.datetime(2020, 2, 21, 15, 0)
+        pr_date = MTL_TZ.localize(datetime.datetime(2020, 2, 21, 15, 0))
         github_results.return_value = [
             MagicMock(
                 updated_at=pr_date,
@@ -103,14 +106,14 @@ class TestAgenda(unittest.TestCase):
             ),
         ]
         prs = agenda.find_old_github_prs(4)
-        age = (datetime.datetime.now() - pr_date).days
+        age = (MTL_TZ.localize(datetime.datetime.now()) - pr_date).days
         expected_lines = [f'- **{age} days**: [Test PR (test/test_repo#42)](an_url)']
         self.assertEqual(prs, expected_lines)
 
     @patch('agenda.get_github_prs')
     def test_github_multiple_old_prs(self, github_results):
-        pr1_date = datetime.datetime(2020, 2, 21, 15, 0)
-        pr2_date = datetime.datetime(2020, 3, 21, 15, 0)
+        pr1_date = MTL_TZ.localize(datetime.datetime(2020, 2, 21, 15, 0))
+        pr2_date = MTL_TZ.localize(datetime.datetime(2020, 3, 21, 15, 0))
         github_results.return_value = [
             MagicMock(
                 updated_at=pr1_date,
@@ -128,8 +131,8 @@ class TestAgenda(unittest.TestCase):
             ),
         ]
         prs = agenda.find_old_github_prs(4)
-        pr1_age = (datetime.datetime.now() - pr1_date).days
-        pr2_age = (datetime.datetime.now() - pr2_date).days
+        pr1_age = (MTL_TZ.localize(datetime.datetime.now()) - pr1_date).days
+        pr2_age = (MTL_TZ.localize(datetime.datetime.now()) - pr2_date).days
         expected_lines = [
             f'- **{pr1_age} days**: [Test PR (test/test_repo#42)](an_url)',
             f'- **{pr2_age} days**: [Test PR 2 (test/test_repo2#43)](an_url2)',
@@ -140,15 +143,7 @@ class TestAgenda(unittest.TestCase):
 
     @patch('agenda.get_github_prs')
     def test_github_no_old_pr(self, github_results):
-        github_results.return_value = [
-            MagicMock(
-                updated_at=datetime.datetime.now(),
-                title='Young PR',
-                repository=MagicMock(full_name='test/test_repo'),
-                number=44,
-                html_url='an_url3',
-            ),
-        ]
+        github_results.return_value = []
         prs = agenda.find_old_github_prs(4)
         expected_lines = ['- None, congratulations!']
         self.assertEqual(prs, expected_lines)

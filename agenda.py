@@ -84,7 +84,7 @@ def find_old_github_prs(day_threshold):
     time_now_mtl = mtl_time.localize(datetime.now())
     search_date = time_now_mtl - timedelta(days=day_threshold)
     search_date_iso = search_date.isoformat()
-    query = GITHUB_SEARCH_QUERY_PARTS + [f'updated:<={search_date_iso}']
+    query = GITHUB_SEARCH_QUERY_PARTS + [f'updated:<{search_date_iso}']
     prs = get_github_prs(github, ' '.join(query))
     old_prs = []
     for pr in prs:
