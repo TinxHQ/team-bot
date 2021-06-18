@@ -78,18 +78,23 @@ def get_github_prs(github, search_query):
     ]
 
 
-def find_old_github_prs(day_threshold):
-    github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
-    mtl_time = pytz.timezone('America/Montreal')
-    time_now_mtl = mtl_time.localize(datetime.now())
-    search_date = time_now_mtl - timedelta(days=day_threshold)
+def generate_github_query_params(now_time, day_threshold):
+    search_date = now_time - timedelta(days=day_threshold)
     search_date_iso = search_date.isoformat()
     query = GITHUB_SEARCH_QUERY_PARTS + [f'updated:<{search_date_iso}']
-    prs = get_github_prs(github, ' '.join(query))
+    return ' '.join(query)
+
+
+def find_old_github_prs(day_threshold):
+    github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
+    mtl_tz = pytz.timezone('America/Montreal')
+    mtl_time = mtl_tz.localize(datetime.now())
+    query_params = generate_github_query_params(mtl_time, day_threshold)
+    prs = get_github_prs(github, query_params)
     old_prs = []
     for pr in prs:
         updated = pr.updated_at
-        age = (time_now_mtl - updated).days
+        age = (mtl_time - updated).days
         line = f'- **{age} days**: [{pr.title} ({pr.repository.full_name}#{pr.number})]({pr.html_url})'
         old_prs.append(line)
     if not old_prs:
