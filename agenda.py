@@ -16,7 +16,7 @@ GITHUB_SEARCH_QUERY_PARTS = [
     'user:wazo-platform',
     'user:TinxHQ',
     'user:wazo-communication',
-    'sort:updated-desc',
+    'sort:updated-asc',
     'draft:false',
 ]
 MAX_SEARCH = 10
