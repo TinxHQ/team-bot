@@ -17,7 +17,7 @@ GITHUB_SEARCH_QUERY_PARTS = [
     'user:TinxHQ',
     'user:wazo-communication',
     'sort:updated-desc',
-    'label:mergeit',
+    'draft:false',
 ]
 MAX_SEARCH = 10
 
