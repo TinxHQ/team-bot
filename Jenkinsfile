@@ -18,10 +18,14 @@ pipeline {
           currentBuild.description = "Teambot run for the day"
         }
         checkout scm
+        sh 'pip3 install -r requirements.txt'
       }
     }
 
     stage ('Run') {
+      environment {
+        GITHUB_CREDS = credentials('github-jenkins-wazo-bot')
+      }
       steps {
         sh 'python3 ./agenda.py planning.yaml "$MATTERMOST_HOOK_URL" dev-daily-scrum'
       }

@@ -2,10 +2,40 @@
 
 import datetime
 import unittest
+import pytz
 
 from io import StringIO
+from unittest.mock import MagicMock, patch
 
 import agenda
+
+CONF = '''
+---
+period: 21
+start: 2020-02-21
+old_pr_threshold: 4
+recurring_messages:
+  - text: "Daily note on %Y-%m-%d"
+  - text: "# %Y-%m-%d"
+    before: true
+  - text: "Another before"
+    before: true
+  - text: "## Old PRs:"
+    github_old_prs: True
+messages:
+  # Friday week0
+  0:
+    text: "- Planning"
+    offset: 3
+  2:
+    offset: 0
+  # Monday week1
+  3:
+    text: "- Grooming"
+    offset: 1
+'''
+
+MTL_TZ = pytz.timezone('America/Montreal')
 
 
 class TestAgenda(unittest.TestCase):
@@ -25,6 +55,10 @@ class TestAgenda(unittest.TestCase):
                         'text': 'Another before',
                         'before': True,
                     },
+                    {
+                        'text': '## Old PRs:',
+                        'github_old_prs': True,
+                    },
                 ],
                 'messages': {
                     0: {'offset': 3, 'text': '- Planning'},
@@ -33,52 +67,87 @@ class TestAgenda(unittest.TestCase):
                 },
                 'period': 21,
                 'start': datetime.datetime(2020, 2, 21, 0, 0),
+                'old_pr_threshold': 4,
             },
         )
 
-    def test_compute_message(self):
+    @patch('agenda.get_github_prs')
+    def test_compute_message_no_old_pr(self, github_results):
         conf = agenda.load_conf(StringIO(CONF))
         now = datetime.datetime(2020, 2, 21, 17, 0)
+        github_results.return_value = []
         self.assertEqual(
             agenda.compute_message(now, conf),
-            '# 2020-02-24\nAnother before\n- Planning\nDaily note on 2020-02-24',
+            '# 2020-02-24\nAnother before\n- Planning\nDaily note on 2020-02-24\n## Old PRs:\n- None, congratulations!',
         )
         now = datetime.datetime(2020, 2, 22, 17, 0)
         self.assertEqual(agenda.compute_message(now, conf), None)
         now = datetime.datetime(2020, 2, 23, 17, 0)
         self.assertEqual(
             agenda.compute_message(now, conf),
-            '# 2020-02-23\nAnother before\nDaily note on 2020-02-23',
+            '# 2020-02-23\nAnother before\nDaily note on 2020-02-23\n## Old PRs:\n- None, congratulations!',
         )
         now = datetime.datetime(2020, 2, 24, 17, 0)
         self.assertEqual(
             agenda.compute_message(now, conf),
-            '# 2020-02-25\nAnother before\n- Grooming\nDaily note on 2020-02-25',
+            '# 2020-02-25\nAnother before\n- Grooming\nDaily note on 2020-02-25\n## Old PRs:\n- None, congratulations!',
         )
 
+    @patch('agenda.get_github_prs')
+    def test_github_only_one_old_pr(self, github_results):
+        pr_date = MTL_TZ.localize(datetime.datetime(2020, 2, 21, 15, 0))
+        github_results.return_value = [
+            MagicMock(
+                updated_at=pr_date,
+                title='Test PR',
+                repository=MagicMock(full_name='test/test_repo'),
+                number=42,
+                html_url='an_url',
+            ),
+        ]
+        prs = agenda.find_old_github_prs(4)
+        age = (MTL_TZ.localize(datetime.datetime.now()) - pr_date).days
+        expected_lines = [f'- **{age} days**: [Test PR (test/test_repo#42)](an_url)']
+        self.assertEqual(prs, expected_lines)
 
-CONF = '''
----
-period: 21
-start: 2020-02-21
-recurring_messages:
-  - text: "Daily note on %Y-%m-%d"
-  - text: "# %Y-%m-%d"
-    before: true
-  - text: "Another before"
-    before: true
-messages:
-  # Friday week0
-  0:
-    text: "- Planning"
-    offset: 3
-  2:
-    offset: 0
-  # Monday week1
-  3:
-    text: "- Grooming"
-    offset: 1
-'''
+    @patch('agenda.get_github_prs')
+    def test_github_multiple_old_prs(self, github_results):
+        pr1_date = MTL_TZ.localize(datetime.datetime(2020, 2, 21, 15, 0))
+        pr2_date = MTL_TZ.localize(datetime.datetime(2020, 3, 21, 15, 0))
+        github_results.return_value = [
+            MagicMock(
+                updated_at=pr1_date,
+                title='Test PR',
+                repository=MagicMock(full_name='test/test_repo'),
+                number=42,
+                html_url='an_url',
+            ),
+            MagicMock(
+                updated_at=pr2_date,
+                title='Test PR 2',
+                repository=MagicMock(full_name='test/test_repo2'),
+                number=43,
+                html_url='an_url2',
+            ),
+        ]
+        prs = agenda.find_old_github_prs(4)
+        pr1_age = (MTL_TZ.localize(datetime.datetime.now()) - pr1_date).days
+        pr2_age = (MTL_TZ.localize(datetime.datetime.now()) - pr2_date).days
+        expected_lines = [
+            f'- **{pr1_age} days**: [Test PR (test/test_repo#42)](an_url)',
+            f'- **{pr2_age} days**: [Test PR 2 (test/test_repo2#43)](an_url2)',
+        ]
+        self.assertEqual(prs, expected_lines)
+
+
+
+    @patch('agenda.get_github_prs')
+    def test_github_no_old_pr(self, github_results):
+        github_results.return_value = []
+        prs = agenda.find_old_github_prs(4)
+        expected_lines = ['- None, congratulations!']
+        self.assertEqual(prs, expected_lines)
+
 
 if __name__ == "__main__":
     unittest.main()

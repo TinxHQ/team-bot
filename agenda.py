@@ -1,10 +1,28 @@
 #!/usr/bin/env python3
 
+import github3
+import os
+import pytz
 import requests
 import sys
 import yaml
 
 from datetime import timedelta, datetime
+
+GITHUB_SEARCH_QUERY_PARTS = [
+    'is:open',
+    'is:pr',
+    'archived:false',
+    'user:wazo-platform',
+    'user:TinxHQ',
+    'user:wazo-communication',
+    'sort:updated-asc',
+    'draft:false',
+]
+MAX_SEARCH = 10
+
+GITHUB_USER = os.getenv('GITHUB_CREDS_USR')
+GITHUB_PASSWORD = os.getenv('GITHUB_CREDS_PSW')
 
 
 def send_message(url, message, channel=None):
@@ -43,10 +61,45 @@ def compute_message(today, conf):
                     else message_lines
                 )
                 list_to_append.append(new_date.strftime(recurring_msg['text']))
+
+            if recurring_msg.get('github_old_prs'):
+                message_lines.extend(find_old_github_prs(conf['old_pr_threshold']))
+
     message_lines = before_message_lines + message_lines
     if message_lines:
         return "\n".join(message_lines)
     return None
+
+
+def get_github_prs(github, search_query):
+    return [
+        result.issue.pull_request()
+        for result in github.search_issues(search_query, number=MAX_SEARCH)
+    ]
+
+
+def generate_github_query_params(now_time, day_threshold):
+    search_date = now_time - timedelta(days=day_threshold)
+    search_date_iso = search_date.isoformat()
+    query = GITHUB_SEARCH_QUERY_PARTS + [f'updated:<{search_date_iso}']
+    return ' '.join(query)
+
+
+def find_old_github_prs(day_threshold):
+    github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
+    mtl_tz = pytz.timezone('America/Montreal')
+    mtl_time = mtl_tz.localize(datetime.now())
+    query_params = generate_github_query_params(mtl_time, day_threshold)
+    prs = get_github_prs(github, query_params)
+    old_prs = []
+    for pr in prs:
+        updated = pr.updated_at
+        age = (mtl_time - updated).days
+        line = f'- **{age} days**: [{pr.title} ({pr.repository.full_name}#{pr.number})]({pr.html_url})'
+        old_prs.append(line)
+    if not old_prs:
+        old_prs.append('- None, congratulations!')
+    return old_prs
 
 
 if __name__ == "__main__":
