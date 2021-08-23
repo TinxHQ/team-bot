@@ -20,7 +20,6 @@ GITHUB_SEARCH_QUERY_PARTS = [
     'sort:updated-asc',
     'draft:false',
 ]
-MAX_SEARCH = 10
 
 GITHUB_USER = os.getenv('GITHUB_CREDS_USR')
 GITHUB_PASSWORD = os.getenv('GITHUB_CREDS_PSW')
@@ -80,7 +79,7 @@ def compute_message(today, conf):
 def get_github_prs(github, search_query):
     return [
         result.issue.pull_request()
-        for result in github.search_issues(search_query, number=MAX_SEARCH)
+        for result in github.search_issues(search_query)
     ]
 
 
