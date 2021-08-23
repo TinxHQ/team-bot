@@ -19,6 +19,7 @@ GITHUB_SEARCH_QUERY_PARTS = [
     'user:wazo-communication',
     'sort:updated-asc',
     'draft:false',
+    '-author:app/dependabot',
 ]
 
 GITHUB_USER = os.getenv('GITHUB_CREDS_USR')
