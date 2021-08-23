@@ -122,7 +122,7 @@ def format_pr_list(pr_list, mtl_time, period):
     message_lines = []
 
     if older_pr_list:
-        message_lines.append(f'- PR older than {period} days: {len(older_pr_list)}')
+        message_lines.append(f'- Older: {len(older_pr_list)} Pull Requests')
 
     for pr in period_pr_list[:MAX_PR_COUNT_DISPLAYED]:
         line = f'- **{pr_age(pr)} days**: [{pr.title} ({pr.repository.full_name}#{pr.number})]({pr.html_url})'
