@@ -115,7 +115,6 @@ def format_pr_list(pr_list, mtl_time, period):
     def pr_in_period(pr):
         return pr_age(pr) < period
 
-    print(list(pr_age(pr) for pr in pr_list))
     older_pr_gen, period_pr_gen = partition(pr_in_period, pr_list)
     older_pr_list = list(older_pr_gen)
     period_pr_list = list(period_pr_gen)
