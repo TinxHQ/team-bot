@@ -24,6 +24,8 @@ GITHUB_SEARCH_QUERY_PARTS = [
 GITHUB_USER = os.getenv('GITHUB_CREDS_USR')
 GITHUB_PASSWORD = os.getenv('GITHUB_CREDS_PSW')
 
+MAX_PR_COUNT_DISPLAYED = 10
+
 
 def send_message(url, message, channel=None):
     headers = {'Content-Type': 'application/json'}
@@ -122,7 +124,7 @@ def format_pr_list(pr_list, mtl_time, period):
     if older_pr_list:
         message_lines.append(f'- PR older than {period} days: {len(older_pr_list)}')
 
-    for pr in period_pr_list:
+    for pr in period_pr_list[:MAX_PR_COUNT_DISPLAYED]:
         line = f'- **{pr_age(pr)} days**: [{pr.title} ({pr.repository.full_name}#{pr.number})]({pr.html_url})'
         message_lines.append(line)
 
