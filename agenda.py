@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import github3
+import itertools
 import os
 import pytz
 import requests
@@ -63,7 +64,12 @@ def compute_message(today, conf):
                 list_to_append.append(new_date.strftime(recurring_msg['text']))
 
             if recurring_msg.get('github_old_prs'):
-                message_lines.extend(find_old_github_prs(conf['old_pr_threshold']))
+                minimum_age = conf['old_pr_threshold']
+                mtl_tz = pytz.timezone('America/Montreal')
+                mtl_time = mtl_tz.localize(datetime.now())
+                pr_list = find_old_github_prs(mtl_time, minimum_age)
+                pr_message_lines = format_pr_list(pr_list, mtl_time, conf['period'])
+                message_lines.extend(pr_message_lines)
 
     message_lines = before_message_lines + message_lines
     if message_lines:
@@ -85,21 +91,43 @@ def generate_github_query_params(now_time, day_threshold):
     return ' '.join(query)
 
 
-def find_old_github_prs(day_threshold):
+def find_old_github_prs(mtl_time, day_threshold):
     github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
-    mtl_tz = pytz.timezone('America/Montreal')
-    mtl_time = mtl_tz.localize(datetime.now())
     query_params = generate_github_query_params(mtl_time, day_threshold)
     prs = get_github_prs(github, query_params)
-    old_prs = []
-    for pr in prs:
-        updated = pr.updated_at
-        age = (mtl_time - updated).days
-        line = f'- **{age} days**: [{pr.title} ({pr.repository.full_name}#{pr.number})]({pr.html_url})'
-        old_prs.append(line)
-    if not old_prs:
-        old_prs.append('- None, congratulations!')
-    return old_prs
+    return prs
+
+
+def partition(pred, iterable):
+    "Use a predicate to partition entries into false entries and true entries"
+    # partition(is_odd, range(10)) --> 0 2 4 6 8   and  1 3 5 7 9
+    # Source: https://docs.python.org/3/library/itertools.html
+    t1, t2 = itertools.tee(iterable)
+    return itertools.filterfalse(pred, t1), filter(pred, t2)
+
+
+def format_pr_list(pr_list, mtl_time, period):
+    def pr_age(pr):
+        return (mtl_time - pr.updated_at).days
+
+    def pr_in_period(pr):
+        return pr_age(pr) < period
+
+    print(list(pr_age(pr) for pr in pr_list))
+    older_pr_gen, period_pr_gen = partition(pr_in_period, pr_list)
+    older_pr_list = list(older_pr_gen)
+    period_pr_list = list(period_pr_gen)
+
+    message_lines = []
+
+    if older_pr_list:
+        message_lines.append(f'- PR older than {period} days: {len(older_pr_list)}')
+
+    for pr in period_pr_list:
+        line = f'- **{pr_age(pr)} days**: [{pr.title} ({pr.repository.full_name}#{pr.number})]({pr.html_url})'
+        message_lines.append(line)
+
+    return message_lines
 
 
 if __name__ == "__main__":
