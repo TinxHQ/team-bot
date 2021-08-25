@@ -5,6 +5,7 @@ import itertools
 import os
 import pytz
 import requests
+import urllib
 import sys
 import yaml
 
@@ -63,14 +64,16 @@ def compute_message(today, conf):
                     if recurring_msg.get('before')
                     else message_lines
                 )
-                list_to_append.append(new_date.strftime(recurring_msg['text']))
+                if recurring_msg.get('text'):
+                    list_to_append.append(new_date.strftime(recurring_msg['text']))
 
             if recurring_msg.get('github_old_prs'):
                 minimum_age = conf['old_pr_threshold']
                 mtl_tz = pytz.timezone('America/Montreal')
                 mtl_time = mtl_tz.localize(datetime.now())
                 pr_list = find_old_github_prs(mtl_time, minimum_age)
-                pr_message_lines = format_pr_list(pr_list, mtl_time, conf['period'])
+                query_params = generate_github_query_params(mtl_time, minimum_age)
+                pr_message_lines = format_pr_list(pr_list, mtl_time, conf['period'], query_params)
                 message_lines.extend(pr_message_lines)
 
     message_lines = before_message_lines + message_lines
@@ -108,7 +111,7 @@ def partition(pred, iterable):
     return itertools.filterfalse(pred, t1), filter(pred, t2)
 
 
-def format_pr_list(pr_list, mtl_time, period):
+def format_pr_list(pr_list, mtl_time, period, query_params):
     def pr_age(pr):
         return (mtl_time - pr.updated_at).days
 
@@ -119,7 +122,10 @@ def format_pr_list(pr_list, mtl_time, period):
     older_pr_list = list(older_pr_gen)
     period_pr_list = list(period_pr_gen)
 
-    message_lines = []
+    query_string = urllib.parse.urlencode({'q': query_params})
+    message_lines = [
+        f'## [Old PRs](https://github.com/pulls?{query_string})'
+    ]
 
     if older_pr_list:
         message_lines.append(f'- Older: {len(older_pr_list)} Pull Requests')
