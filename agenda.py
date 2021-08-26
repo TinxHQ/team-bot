@@ -2,6 +2,7 @@
 
 import github3
 import itertools
+import operator
 import os
 import pytz
 import requests
@@ -26,7 +27,8 @@ GITHUB_SEARCH_QUERY_PARTS = [
 GITHUB_USER = os.getenv('GITHUB_CREDS_USR')
 GITHUB_PASSWORD = os.getenv('GITHUB_CREDS_PSW')
 
-MAX_PR_COUNT_DISPLAYED = 10
+MAX_PR_COUNT_DISPLAYED = 5
+SPRINT_MAX_AGE = 21
 
 
 def send_message(url, message, channel=None):
@@ -71,9 +73,10 @@ def compute_message(today, conf):
                 minimum_age = conf['old_pr_threshold']
                 mtl_tz = pytz.timezone('America/Montreal')
                 mtl_time = mtl_tz.localize(datetime.now())
-                pr_list = find_old_github_prs(mtl_time, minimum_age)
+                oldest_pr_list = find_oldest_github_prs(mtl_time, minimum_age)
+                sprint_pr_list = find_sprint_github_prs(mtl_time, minimum_age)
                 query_params = generate_github_query_params(mtl_time, minimum_age)
-                pr_message_lines = format_pr_list(pr_list, mtl_time, conf['period'], query_params)
+                pr_message_lines = format_pr_list(oldest_pr_list, sprint_pr_list, mtl_time, conf['period'], query_params)
                 message_lines.extend(pr_message_lines)
 
     message_lines = before_message_lines + message_lines
@@ -82,10 +85,10 @@ def compute_message(today, conf):
     return None
 
 
-def get_github_prs(github, search_query):
+def get_github_prs(github, search_query, limit):
     return [
         result.issue.pull_request()
-        for result in github.search_issues(search_query)
+        for result in github.search_issues(search_query, number=limit)
     ]
 
 
@@ -96,11 +99,34 @@ def generate_github_query_params(now_time, day_threshold):
     return ' '.join(query)
 
 
-def find_old_github_prs(mtl_time, day_threshold):
+def find_oldest_github_prs(mtl_time, day_threshold):
     github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
     query_params = generate_github_query_params(mtl_time, day_threshold)
-    prs = get_github_prs(github, query_params)
+    prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
     return prs
+
+
+def generate_sprint_mergeit_github_query_params(now_time, minimum_age):
+    minimum_age = (now_time - timedelta(days=minimum_age)).isoformat()
+    maximum_age = (now_time - timedelta(days=SPRINT_MAX_AGE)).isoformat()
+    query = GITHUB_SEARCH_QUERY_PARTS + [f'updated:{maximum_age}..{minimum_age}', 'label:mergeit']
+    return ' '.join(query)
+
+
+def generate_sprint_pls_review_github_query_params(now_time, minimum_age):
+    minimum_age = (now_time - timedelta(days=minimum_age)).isoformat()
+    maximum_age = (now_time - timedelta(days=SPRINT_MAX_AGE)).isoformat()
+    query = GITHUB_SEARCH_QUERY_PARTS + [f'updated:{maximum_age}..{minimum_age}', 'label:"🙏 Please review"']
+    return ' '.join(query)
+
+
+def find_sprint_github_prs(mtl_time, day_threshold):
+    github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
+    query_params = generate_sprint_mergeit_github_query_params(mtl_time, day_threshold)
+    mergeit_prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
+    query_params = generate_sprint_pls_review_github_query_params(mtl_time, day_threshold)
+    please_review_prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
+    return sorted(mergeit_prs + please_review_prs, key=operator.attrgetter("updated_at"))
 
 
 def partition(pred, iterable):
@@ -111,7 +137,7 @@ def partition(pred, iterable):
     return itertools.filterfalse(pred, t1), filter(pred, t2)
 
 
-def format_pr_list(pr_list, mtl_time, period, query_params):
+def format_pr_list(pr_list, sprint_pr_list, mtl_time, period, query_params):
     def pr_age(pr):
         return (mtl_time - pr.updated_at).days
 
@@ -133,6 +159,12 @@ def format_pr_list(pr_list, mtl_time, period, query_params):
     for pr in period_pr_list[:MAX_PR_COUNT_DISPLAYED]:
         line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'
         message_lines.append(line)
+
+    if sprint_pr_list:
+        message_lines.append('## Sprint PRs')
+        for pr in sprint_pr_list[:MAX_PR_COUNT_DISPLAYED]:
+            line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'
+            message_lines.append(line)
 
     return message_lines
 
