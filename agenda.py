@@ -29,6 +29,10 @@ GITHUB_PASSWORD = os.getenv('GITHUB_CREDS_PSW')
 
 MAX_PR_COUNT_DISPLAYED = 5
 SPRINT_MAX_AGE = 21
+OLDEST_PR_MIN_AGE = 30
+
+MONTREAL_TIMEZONE = pytz.timezone('America/Montreal')
+mtl_time = MONTREAL_TIMEZONE.localize(datetime.now())
 
 
 def send_message(url, message, channel=None):
@@ -71,8 +75,6 @@ def compute_message(today, conf):
 
             if recurring_msg.get('github_old_prs'):
                 minimum_age = conf['old_pr_threshold']
-                mtl_tz = pytz.timezone('America/Montreal')
-                mtl_time = mtl_tz.localize(datetime.now())
                 oldest_pr_list = find_oldest_github_prs(mtl_time, minimum_age)
                 sprint_pr_list = find_sprint_github_prs(mtl_time, minimum_age)
                 oldest_query_params = generate_github_query_params(mtl_time, minimum_age)
@@ -101,10 +103,14 @@ def get_github_prs(github, search_query, limit):
     ]
 
 
-def generate_github_query_params(now_time, day_threshold):
-    search_date = now_time - timedelta(days=day_threshold)
-    search_date_iso = search_date.isoformat()
-    query = GITHUB_SEARCH_QUERY_PARTS + [f'updated:<{search_date_iso}']
+def github_filter_age(minimum_age, maximum_age=None):
+    minimum_age = (mtl_time - timedelta(days=minimum_age)).isoformat()
+    maximum_age = '*' if not maximum_age else (mtl_time - timedelta(days=maximum_age)).isoformat()
+    return f'updated:{maximum_age}..{minimum_age}'
+
+
+def generate_github_query_params(now_time, minimum_age):
+    query = GITHUB_SEARCH_QUERY_PARTS + [github_filter_age(minimum_age)]
     return ' '.join(query)
 
 
@@ -116,16 +122,12 @@ def find_oldest_github_prs(mtl_time, day_threshold):
 
 
 def generate_sprint_mergeit_github_query_params(now_time, minimum_age):
-    minimum_age = (now_time - timedelta(days=minimum_age)).isoformat()
-    maximum_age = (now_time - timedelta(days=SPRINT_MAX_AGE)).isoformat()
-    query = GITHUB_SEARCH_QUERY_PARTS + [f'updated:{maximum_age}..{minimum_age}', 'label:mergeit']
+    query = GITHUB_SEARCH_QUERY_PARTS + [github_filter_age(minimum_age, SPRINT_MAX_AGE), 'label:mergeit']
     return ' '.join(query)
 
 
 def generate_sprint_pls_review_github_query_params(now_time, minimum_age):
-    minimum_age = (now_time - timedelta(days=minimum_age)).isoformat()
-    maximum_age = (now_time - timedelta(days=SPRINT_MAX_AGE)).isoformat()
-    query = GITHUB_SEARCH_QUERY_PARTS + [f'updated:{maximum_age}..{minimum_age}', 'label:"🙏 Please review"']
+    query = GITHUB_SEARCH_QUERY_PARTS + [github_filter_age(minimum_age, SPRINT_MAX_AGE), 'label:"🙏 Please review"']
     return ' '.join(query)
 
 
