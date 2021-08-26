@@ -75,18 +75,17 @@ def compute_message(today, conf):
 
             if recurring_msg.get('github_old_prs'):
                 minimum_age = conf['old_pr_threshold']
-                oldest_pr_list = find_oldest_github_prs(mtl_time, minimum_age)
-                sprint_pr_list = find_sprint_github_prs(mtl_time, minimum_age)
-                oldest_query_params = generate_github_query_params(mtl_time, minimum_age)
-                sprint_mergeit_query_params = generate_sprint_mergeit_github_query_params(mtl_time, minimum_age)
-                sprint_pls_review_query_params = generate_sprint_pls_review_github_query_params(mtl_time, minimum_age)
+                oldest_pr_list = find_oldest_github_prs(minimum_age)
+                sprint_pr_list = find_sprint_github_prs(minimum_age)
+                oldest_query_params = generate_github_query_params(minimum_age)
+                sprint_mergeit_query_params = generate_sprint_mergeit_github_query_params(minimum_age)
+                sprint_pls_review_query_params = generate_sprint_pls_review_github_query_params(minimum_age)
                 pr_message_lines = format_pr_list(
                     oldest_pr_list,
                     oldest_query_params,
                     sprint_pr_list,
                     sprint_mergeit_query_params,
                     sprint_pls_review_query_params,
-                    mtl_time
                 )
                 message_lines.extend(pr_message_lines)
 
@@ -109,38 +108,38 @@ def github_filter_age(minimum_age, maximum_age=None):
     return f'updated:{maximum_age}..{minimum_age}'
 
 
-def generate_github_query_params(now_time, minimum_age):
+def generate_github_query_params(minimum_age):
     query = GITHUB_SEARCH_QUERY_PARTS + [github_filter_age(minimum_age)]
     return ' '.join(query)
 
 
-def find_oldest_github_prs(mtl_time, day_threshold):
+def find_oldest_github_prs(day_threshold):
     github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
-    query_params = generate_github_query_params(mtl_time, day_threshold)
+    query_params = generate_github_query_params(day_threshold)
     prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
     return prs
 
 
-def generate_sprint_mergeit_github_query_params(now_time, minimum_age):
+def generate_sprint_mergeit_github_query_params(minimum_age):
     query = GITHUB_SEARCH_QUERY_PARTS + [github_filter_age(minimum_age, SPRINT_MAX_AGE), 'label:mergeit']
     return ' '.join(query)
 
 
-def generate_sprint_pls_review_github_query_params(now_time, minimum_age):
+def generate_sprint_pls_review_github_query_params(minimum_age):
     query = GITHUB_SEARCH_QUERY_PARTS + [github_filter_age(minimum_age, SPRINT_MAX_AGE), 'label:"🙏 Please review"']
     return ' '.join(query)
 
 
-def find_sprint_github_prs(mtl_time, day_threshold):
+def find_sprint_github_prs(day_threshold):
     github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
-    query_params = generate_sprint_mergeit_github_query_params(mtl_time, day_threshold)
+    query_params = generate_sprint_mergeit_github_query_params(day_threshold)
     mergeit_prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
-    query_params = generate_sprint_pls_review_github_query_params(mtl_time, day_threshold)
+    query_params = generate_sprint_pls_review_github_query_params(day_threshold)
     please_review_prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
     return sorted(mergeit_prs + please_review_prs, key=operator.attrgetter("updated_at"))
 
 
-def format_pr_list(oldest_pr_list, oldest_query_params, sprint_pr_list, sprint_mergeit_query_params, sprint_pls_review_query_params, mtl_time):
+def format_pr_list(oldest_pr_list, oldest_query_params, sprint_pr_list, sprint_mergeit_query_params, sprint_pls_review_query_params):
     def pr_age(pr):
         return (mtl_time - pr.updated_at).days
 
