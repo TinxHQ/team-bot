@@ -116,9 +116,9 @@ def generate_oldest_pr_github_query_params(minimum_age):
     return github_query_params(GITHUB_SEARCH_QUERY_PARTS + [github_filter_age(minimum_age)])
 
 
-def find_oldest_github_prs(day_threshold):
+def find_oldest_github_prs(minimum_age):
     github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
-    query_params = generate_oldest_pr_github_query_params(day_threshold)
+    query_params = generate_oldest_pr_github_query_params(minimum_age)
     prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
     return prs
 
@@ -143,11 +143,11 @@ def generate_sprint_pls_review_github_query_params(minimum_age):
     )
 
 
-def find_sprint_github_prs(day_threshold):
+def find_sprint_github_prs(minimum_age):
     github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
-    query_params = generate_sprint_mergeit_github_query_params(day_threshold)
+    query_params = generate_sprint_mergeit_github_query_params(minimum_age)
     mergeit_prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
-    query_params = generate_sprint_pls_review_github_query_params(day_threshold)
+    query_params = generate_sprint_pls_review_github_query_params(minimum_age)
     please_review_prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
     return sorted(mergeit_prs + please_review_prs, key=operator.attrgetter("updated_at"))
 
