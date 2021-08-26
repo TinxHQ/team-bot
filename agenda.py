@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import github3
-import itertools
 import operator
 import os
 import pytz
