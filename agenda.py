@@ -75,8 +75,17 @@ def compute_message(today, conf):
                 mtl_time = mtl_tz.localize(datetime.now())
                 oldest_pr_list = find_oldest_github_prs(mtl_time, minimum_age)
                 sprint_pr_list = find_sprint_github_prs(mtl_time, minimum_age)
-                query_params = generate_github_query_params(mtl_time, minimum_age)
-                pr_message_lines = format_pr_list(oldest_pr_list, sprint_pr_list, mtl_time, query_params)
+                oldest_query_params = generate_github_query_params(mtl_time, minimum_age)
+                sprint_mergeit_query_params = generate_sprint_mergeit_github_query_params(mtl_time, minimum_age)
+                sprint_pls_review_query_params = generate_sprint_pls_review_github_query_params(mtl_time, minimum_age)
+                pr_message_lines = format_pr_list(
+                    oldest_pr_list,
+                    oldest_query_params,
+                    sprint_pr_list,
+                    sprint_mergeit_query_params,
+                    sprint_pls_review_query_params,
+                    mtl_time
+                )
                 message_lines.extend(pr_message_lines)
 
     message_lines = before_message_lines + message_lines
@@ -129,22 +138,25 @@ def find_sprint_github_prs(mtl_time, day_threshold):
     return sorted(mergeit_prs + please_review_prs, key=operator.attrgetter("updated_at"))
 
 
-def format_pr_list(pr_list, sprint_pr_list, mtl_time, query_params):
+def format_pr_list(oldest_pr_list, oldest_query_params, sprint_pr_list, sprint_mergeit_query_params, sprint_pls_review_query_params, mtl_time):
     def pr_age(pr):
         return (mtl_time - pr.updated_at).days
 
-    message_lines = []
-    if pr_list:
+    def pr_list_url(query_params):
         query_string = urllib.parse.urlencode({'q': query_params})
-        message_lines.append(f'## [Old PRs](https://github.com/pulls?{query_string})')
+        return f'https://github.com/pulls?{query_string}'
 
-    for pr in pr_list[:MAX_PR_COUNT_DISPLAYED]:
-        line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'
-        message_lines.append(line)
+    message_lines = []
 
     if sprint_pr_list:
-        message_lines.append('## Sprint PRs')
+        message_lines.append(f'## Sprint PRs ([mergeit]({pr_list_url(sprint_mergeit_query_params)}) | [Please review]({pr_list_url(sprint_pls_review_query_params)}))')
         for pr in sprint_pr_list[:MAX_PR_COUNT_DISPLAYED]:
+            line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'
+            message_lines.append(line)
+
+    if oldest_pr_list:
+        message_lines.append(f'## [Old PRs]({pr_list_url(oldest_query_params)})')
+        for pr in oldest_pr_list[:MAX_PR_COUNT_DISPLAYED]:
             line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'
             message_lines.append(line)
 
