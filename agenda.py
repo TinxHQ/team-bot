@@ -32,7 +32,7 @@ SPRINT_MAX_AGE = 21
 OLDEST_PR_MIN_AGE = 30
 
 MONTREAL_TIMEZONE = pytz.timezone('America/Montreal')
-mtl_time = MONTREAL_TIMEZONE.localize(datetime.now())
+montreal_now = MONTREAL_TIMEZONE.localize(datetime.now())
 
 
 def send_message(url, message, channel=None):
@@ -103,8 +103,8 @@ def get_github_prs(github, search_query, limit):
 
 
 def github_filter_age(minimum_age, maximum_age=None):
-    minimum_age = (mtl_time - timedelta(days=minimum_age)).isoformat()
-    maximum_age = '*' if not maximum_age else (mtl_time - timedelta(days=maximum_age)).isoformat()
+    minimum_age = (montreal_now - timedelta(days=minimum_age)).isoformat()
+    maximum_age = '*' if not maximum_age else (montreal_now - timedelta(days=maximum_age)).isoformat()
     return f'updated:{maximum_age}..{minimum_age}'
 
 
@@ -141,7 +141,7 @@ def find_sprint_github_prs(day_threshold):
 
 def format_pr_list(oldest_pr_list, oldest_query_params, sprint_pr_list, sprint_mergeit_query_params, sprint_pls_review_query_params):
     def pr_age(pr):
-        return (mtl_time - pr.updated_at).days
+        return (montreal_now - pr.updated_at).days
 
     def pr_list_url(query_params):
         query_string = urllib.parse.urlencode({'q': query_params})
