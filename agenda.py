@@ -76,7 +76,7 @@ def compute_message(today, conf):
                 oldest_pr_list = find_oldest_github_prs(mtl_time, minimum_age)
                 sprint_pr_list = find_sprint_github_prs(mtl_time, minimum_age)
                 query_params = generate_github_query_params(mtl_time, minimum_age)
-                pr_message_lines = format_pr_list(oldest_pr_list, sprint_pr_list, mtl_time, conf['period'], query_params)
+                pr_message_lines = format_pr_list(oldest_pr_list, sprint_pr_list, mtl_time, query_params)
                 message_lines.extend(pr_message_lines)
 
     message_lines = before_message_lines + message_lines
@@ -129,34 +129,16 @@ def find_sprint_github_prs(mtl_time, day_threshold):
     return sorted(mergeit_prs + please_review_prs, key=operator.attrgetter("updated_at"))
 
 
-def partition(pred, iterable):
-    "Use a predicate to partition entries into false entries and true entries"
-    # partition(is_odd, range(10)) --> 0 2 4 6 8   and  1 3 5 7 9
-    # Source: https://docs.python.org/3/library/itertools.html
-    t1, t2 = itertools.tee(iterable)
-    return itertools.filterfalse(pred, t1), filter(pred, t2)
-
-
-def format_pr_list(pr_list, sprint_pr_list, mtl_time, period, query_params):
+def format_pr_list(pr_list, sprint_pr_list, mtl_time, query_params):
     def pr_age(pr):
         return (mtl_time - pr.updated_at).days
 
-    def pr_in_period(pr):
-        return pr_age(pr) < period
+    message_lines = []
+    if pr_list:
+        query_string = urllib.parse.urlencode({'q': query_params})
+        message_lines.append(f'## [Old PRs](https://github.com/pulls?{query_string})')
 
-    older_pr_gen, period_pr_gen = partition(pr_in_period, pr_list)
-    older_pr_list = list(older_pr_gen)
-    period_pr_list = list(period_pr_gen)
-
-    query_string = urllib.parse.urlencode({'q': query_params})
-    message_lines = [
-        f'## [Old PRs](https://github.com/pulls?{query_string})'
-    ]
-
-    if older_pr_list:
-        message_lines.append(f'- Older: {len(older_pr_list)} Pull Requests')
-
-    for pr in period_pr_list[:MAX_PR_COUNT_DISPLAYED]:
+    for pr in pr_list[:MAX_PR_COUNT_DISPLAYED]:
         line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'
         message_lines.append(line)
 
