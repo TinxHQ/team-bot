@@ -109,18 +109,19 @@ def get_github_prs(github, search_query, limit):
 
 def github_filter_age(minimum_age, maximum_age=None):
     def minimum_open_days(days):
-        if days > montreal_now.isoweekday():
+        if days >= montreal_now.isoweekday():
             return days + 2  # skip saturday + sunday of the last week-end
         return days
 
-    minimum_age = minimum_open_days(minimum_age)
-    minimum_age = (montreal_now - timedelta(days=minimum_age)).isoformat()
-    maximum_age = (
+    date_range = maximum_age - minimum_age if maximum_age else 0
+    minimum_age_open_days = minimum_open_days(minimum_age)
+    latest_date = (montreal_now - timedelta(days=minimum_age_open_days)).isoformat()
+    earliest_date = (
         '*'
         if not maximum_age
-        else (montreal_now - timedelta(days=maximum_age)).isoformat()
+        else (montreal_now - timedelta(days=(minimum_age_open_days + date_range))).isoformat()
     )
-    return f'updated:{maximum_age}..{minimum_age}'
+    return f'updated:{earliest_date}..{latest_date}'
 
 
 def github_query_params(filters):
