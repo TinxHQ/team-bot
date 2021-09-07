@@ -116,11 +116,11 @@ def github_filter_age(minimum_age, maximum_age=None):
     date_range = maximum_age - minimum_age if maximum_age else 0
     minimum_age_open_days = minimum_open_days(minimum_age)
     latest_date = (montreal_now - timedelta(days=minimum_age_open_days)).isoformat()
-    earliest_date = (
-        '*'
-        if not maximum_age
-        else (montreal_now - timedelta(days=(minimum_age_open_days + date_range))).isoformat()
-    )
+
+    open_range = minimum_age_open_days + date_range
+    earliest_date_from_now = (montreal_now - timedelta(days=open_range)).isoformat()
+    earliest_date = '*' if not maximum_age else earliest_date_from_now
+
     return f'updated:{earliest_date}..{latest_date}'
 
 
@@ -183,15 +183,17 @@ def format_pr_list(
     message_lines = []
 
     if sprint_pr_list:
+        mergeit_url = pr_list_url(sprint_mergeit_query_params)
+        review_url = pr_list_url(sprint_pls_review_query_params)
         message_lines.append(
-            f'## Sprint PRs ([mergeit]({pr_list_url(sprint_mergeit_query_params)}) | [Please review]({pr_list_url(sprint_pls_review_query_params)}))'
+            f'#### Sprint PRs ([mergeit]({mergeit_url}) | [Please review]({review_url}))'
         )
         for pr in sprint_pr_list[:MAX_PR_COUNT_DISPLAYED]:
             line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'
             message_lines.append(line)
 
     if oldest_pr_list:
-        message_lines.append(f'## [Old PRs]({pr_list_url(oldest_query_params)})')
+        message_lines.append(f'#### [Old PRs]({pr_list_url(oldest_query_params)})')
         for pr in oldest_pr_list[:MAX_PR_COUNT_DISPLAYED]:
             line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'
             message_lines.append(line)
