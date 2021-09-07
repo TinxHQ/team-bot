@@ -175,10 +175,10 @@ class TestAgenda(unittest.TestCase):
             sprint_mergeit_query_params=sprint_mergeit_query_params,
             sprint_pls_review_query_params=sprint_pls_review_query_params,
         ) == [
-            '## Sprint PRs ([mergeit](https://github.com/pulls?q=%28%27test-mergeit%27%2C%29) | [Please review](https://github.com/pulls?q=%28%27test-please-review%27%2C%29))',
+            '#### Sprint PRs ([mergeit](https://github.com/pulls?q=%28%27test-mergeit%27%2C%29) | [Please review](https://github.com/pulls?q=%28%27test-please-review%27%2C%29))',
             f'- **{pr1_age} days**: [test_repo #42](an_url) Test PR',
             f'- **{pr2_age} days**: [test_repo2 #43](an_url2) Test PR 2',
-            '## [Old PRs](https://github.com/pulls?q=%28%27test%27%2C%29)',
+            '#### [Old PRs](https://github.com/pulls?q=%28%27test%27%2C%29)',
             f'- **{pr1_age} days**: [test_repo #42](an_url) Test PR',
             f'- **{pr2_age} days**: [test_repo2 #43](an_url2) Test PR 2',
         ]
