@@ -116,11 +116,11 @@ def github_filter_age(minimum_age, maximum_age=None):
     date_range = maximum_age - minimum_age if maximum_age else 0
     minimum_age_open_days = minimum_open_days(minimum_age)
     latest_date = (montreal_now - timedelta(days=minimum_age_open_days)).isoformat()
-    earliest_date = (
-        '*'
-        if not maximum_age
-        else (montreal_now - timedelta(days=(minimum_age_open_days + date_range))).isoformat()
-    )
+
+    open_range = minimum_age_open_days + date_range
+    earliest_date_from_now = (montreal_now - timedelta(days=open_range)).isoformat()
+    earliest_date = '*' if not maximum_age else earliest_date_from_now
+
     return f'updated:{earliest_date}..{latest_date}'
 
 
