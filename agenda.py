@@ -183,8 +183,10 @@ def format_pr_list(
     message_lines = []
 
     if sprint_pr_list:
+        mergeit_url = pr_list_url(sprint_mergeit_query_params)
+        review_url = pr_list_url(sprint_pls_review_query_params)
         message_lines.append(
-            f'#### Sprint PRs ([mergeit]({pr_list_url(sprint_mergeit_query_params)}) | [Please review]({pr_list_url(sprint_pls_review_query_params)}))'
+            f'#### Sprint PRs ([mergeit]({mergeit_url}) | [Please review]({review_url}))'
         )
         for pr in sprint_pr_list[:MAX_PR_COUNT_DISPLAYED]:
             line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'

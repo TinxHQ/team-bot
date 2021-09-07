@@ -168,6 +168,8 @@ class TestAgenda(unittest.TestCase):
         oldest_query_params = ('test',)
         sprint_mergeit_query_params = ('test-mergeit',)
         sprint_pls_review_query_params = ('test-please-review',)
+        mergeit_url = 'https://github.com/pulls?q=%28%27test-mergeit%27%2C%29'
+        review_url = 'https://github.com/pulls?q=%28%27test-please-review%27%2C%29'
         assert agenda.format_pr_list(
             oldest_pr_list=oldest_pr_list,
             oldest_query_params=oldest_query_params,
@@ -175,7 +177,7 @@ class TestAgenda(unittest.TestCase):
             sprint_mergeit_query_params=sprint_mergeit_query_params,
             sprint_pls_review_query_params=sprint_pls_review_query_params,
         ) == [
-            '#### Sprint PRs ([mergeit](https://github.com/pulls?q=%28%27test-mergeit%27%2C%29) | [Please review](https://github.com/pulls?q=%28%27test-please-review%27%2C%29))',
+            f'#### Sprint PRs ([mergeit]({mergeit_url}) | [Please review]({review_url}))',
             f'- **{pr1_age} days**: [test_repo #42](an_url) Test PR',
             f'- **{pr2_age} days**: [test_repo2 #43](an_url2) Test PR 2',
             '#### [Old PRs](https://github.com/pulls?q=%28%27test%27%2C%29)',
