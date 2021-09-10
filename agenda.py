@@ -62,7 +62,7 @@ def compute_message(today, conf):
         if data.get('text'):
             msg = new_date.strftime(data['text'])
             message_lines.append(msg)
-        if conf['recurring_messages']:
+        if conf.get('recurring_messages'):
             for recurring_msg in conf['recurring_messages']:
                 list_to_append = (
                     before_message_lines
