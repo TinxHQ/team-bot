@@ -5,7 +5,6 @@ old_pr_threshold: 4
 recurring_messages:
   - text: "***\n# %Y-%m-%d"
     before: true
-  - text: "- [New tickets](https://wazo-dev.atlassian.net/issues/?filter=10105)"
   - github_old_prs: true
 messages:
   # Friday week0
