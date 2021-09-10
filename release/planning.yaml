@@ -1,0 +1,12 @@
+---
+period: 21
+start: 2021-01-01
+messages:
+  # Monday week2
+  10:
+    text: "EUC Stack Release"
+    offset: 1
+  # Tuesday week2
+  11:
+    text: "EUC Stack Release"
+    offset: 1
