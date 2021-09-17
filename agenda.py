@@ -74,10 +74,10 @@ def compute_message(today, conf):
 
             if recurring_msg.get('github_old_prs'):
                 minimum_age = conf['old_pr_threshold']
-                oldest_pr_list = find_oldest_github_prs(minimum_age)
+                oldest_pr_list = find_oldest_github_prs(OLDEST_PR_MIN_AGE)
                 sprint_pr_list = find_sprint_github_prs(minimum_age)
                 oldest_query_params = generate_oldest_pr_github_query_params(
-                    minimum_age
+                    OLDEST_PR_MIN_AGE
                 )
                 sprint_mergeit_query_params = (
                     generate_sprint_mergeit_github_query_params(minimum_age)
