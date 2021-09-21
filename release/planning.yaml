@@ -8,5 +8,5 @@ messages:
     offset: 1
   # Tuesday week2
   11:
-    text: "EUC Stack Release"
+    text: "EUC Stack Release (reminder)"
     offset: 1
