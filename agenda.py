@@ -224,7 +224,7 @@ if __name__ == "__main__":
     try:
         conf_file_path = sys.argv[1]
         mattermost_url = sys.argv[2]
-        mattermost_channel = sys.argv[3]
+        mattermost_channels = sys.argv[3:]
     except IndexError:
         print('Usage: %s <conf> <url> <chan>' % sys.argv[0], file=sys.stderr)
         sys.exit(1)
@@ -234,7 +234,8 @@ if __name__ == "__main__":
     now = datetime.now()
     message = compute_message(now, conf)
     if message:
-        print(message, mattermost_channel, file=sys.stderr)
-        send_message(mattermost_url, message, mattermost_channel)
+        for mattermost_channel in mattermost_channels:
+            print(message, mattermost_channel, file=sys.stderr)
+            send_message(mattermost_url, message, mattermost_channel)
     else:
         print('No message today', file=sys.stderr)
