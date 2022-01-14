@@ -1,3 +1,5 @@
+def DAILY_CHANNELS = ['team-central', 'external-visio', 'administrator-roles', 'sso---ldap'].join(' ');
+
 pipeline {
 
   agent any
@@ -27,7 +29,7 @@ pipeline {
         GITHUB_CREDS = credentials('github-jenkins-wazo-bot')
       }
       steps {
-        sh 'python3 ./agenda.py daily-scrum/planning.yaml "$MATTERMOST_HOOK_URL" dev-daily-scrum'
+        sh "python3 ./agenda.py daily-scrum/planning.yaml '$MATTERMOST_HOOK_URL' $DAILY_CHANNELS"
       }
     }
   }
