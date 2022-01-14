@@ -69,8 +69,8 @@ class TestAgenda(unittest.TestCase):
             },
         )
 
-    @patch('agenda.find_oldest_github_prs', MagicMock(return_value=[]))
-    @patch('agenda.find_sprint_github_prs', MagicMock(return_value=[]))
+    @patch('agenda.find_oldest_github_prs', MagicMock(return_value=MagicMock(prs=[])))
+    @patch('agenda.find_sprint_github_prs', MagicMock(return_value=MagicMock(prs=[])))
     def test_compute_message_no_old_pr(self):
         conf = agenda.load_conf(StringIO(CONF))
         now = datetime.datetime(2020, 2, 21, 17, 0)
@@ -131,9 +131,9 @@ class TestAgenda(unittest.TestCase):
     def test_format_pr_list_empty(self):
         assert (
             agenda.format_pr_list(
-                oldest_pr_list=[],
+                oldest_pr_list=MagicMock(prs=[]),
                 oldest_query_params=None,
-                sprint_pr_list=[],
+                sprint_pr_list=MagicMock(prs=[]),
                 sprint_mergeit_query_params=None,
                 sprint_pls_review_query_params=None,
             )
@@ -149,22 +149,25 @@ class TestAgenda(unittest.TestCase):
         repository1.name = 'test_repo'
         repository2 = MagicMock()
         repository2.name = 'test_repo2'
-        sprint_pr_list = oldest_pr_list = [
-            MagicMock(
-                updated_at=pr1_date,
-                title='Test PR',
-                repository=repository1,
-                number=42,
-                html_url='an_url',
-            ),
-            MagicMock(
-                updated_at=pr2_date,
-                title='Test PR 2',
-                repository=repository2,
-                number=43,
-                html_url='an_url2',
-            ),
-        ]
+        sprint_pr_list = oldest_pr_list = MagicMock(
+            count=2,
+            prs=[
+                MagicMock(
+                    updated_at=pr1_date,
+                    title='Test PR',
+                    repository=repository1,
+                    number=42,
+                    html_url='an_url',
+                ),
+                MagicMock(
+                    updated_at=pr2_date,
+                    title='Test PR 2',
+                    repository=repository2,
+                    number=43,
+                    html_url='an_url2',
+                ),
+            ],
+        )
         oldest_query_params = ('test',)
         sprint_mergeit_query_params = ('test-mergeit',)
         sprint_pls_review_query_params = ('test-please-review',)

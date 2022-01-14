@@ -174,9 +174,7 @@ def find_sprint_github_prs(minimum_age):
     query_params = generate_sprint_pls_review_github_query_params(minimum_age)
     please_review_prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
     please_review_count = count_github_prs(github, query_params)
-    prs = sorted(
-        mergeit_prs + please_review_prs, key=operator.attrgetter("updated_at")
-    )
+    prs = sorted(mergeit_prs + please_review_prs, key=operator.attrgetter("updated_at"))
     count = mergeit_count + please_review_count
     return PRList(prs, count)
 
@@ -212,7 +210,9 @@ def format_pr_list(
     if oldest_pr_list.prs:
         count = oldest_pr_list.count
         count = '' if count < MAX_PR_COUNT_DISPLAYED else f'{count} '
-        message_lines.append(f'#### [{count}Old PRs]({pr_list_url(oldest_query_params)})')
+        message_lines.append(
+            f'#### [{count}Old PRs]({pr_list_url(oldest_query_params)})'
+        )
         for pr in oldest_pr_list.prs[:MAX_PR_COUNT_DISPLAYED]:
             line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'
             message_lines.append(line)
