@@ -10,51 +10,36 @@ messages:
   # Friday week0
   0:
     text: "Note:\n\n- Planning"
-    offset: 3
   # Monday week1
   3:
-    offset: 1
   # Tuesday week1
   4:
-    offset: 1
   # Wednesday week1
   5:
-    offset: 1
   # Thursday week1
   6:
     text: "Note:\n\n- Sprint Review"
-    offset: 1
   # Friday week1
   7:
     text: "Note:\n\n- Wazo EUC Stack release"
-    offset: 3
   # Monday week2
   10:
-    offset: 1
   # Tuesday week2
   11:
     text: "Note:\n\n- Sprint Review"
-    offset: 1
   # Wednesday week2
   12:
-    offset: 1
   # Thursday week2
   13:
-    offset: 1
   # Friday week2
   14:
-    offset: 3
   # Monday week3
   17:
-    offset: 1
   # Tuesday week3
   18:
     text: "\n- Freeze"
-    offset: 1
   # Wednesday week3
   19:
-    offset: 1
   # Thursday week3
   20:
     text: "Note:\n\n- Retro (@retro-manager prepare it!)"
-    offset: 1

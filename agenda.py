@@ -64,7 +64,9 @@ def compute_message(today, conf):
     message_lines = []
     if idx in conf['messages']:
         data = conf['messages'][idx]
-        new_date = today + timedelta(data['offset'])
+        new_date = today
+        if 'offset' in data:
+            new_date = new_date + timedelta(data['offset'])
         if data.get('text'):
             msg = new_date.strftime(data['text'])
             message_lines.append(msg)
