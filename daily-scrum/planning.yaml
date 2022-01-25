@@ -1,45 +1,47 @@
 ---
 period: 21
-start: 2022-01-07  # Friday before the first week of a sprint
+start: 2022-01-10  # The first week of the sprint
 old_pr_threshold: 4
 recurring_messages:
   - text: "***\n# %Y-%m-%d"
     before: true
   - github_old_prs: true
 messages:
-  # Friday week0
+  # Monday week0
   0:
     text: "Note:\n\n- Planning"
-  # Monday week1
-  3:
   # Tuesday week1
-  4:
+  3:
   # Wednesday week1
-  5:
+  4:
   # Thursday week1
+  5:
+  # Friday week1
   6:
     text: "Note:\n\n- Sprint Review"
-  # Friday week1
+
+  # Monday week1
   7:
     text: "Note:\n\n- Wazo EUC Stack release"
-  # Monday week2
-  10:
   # Tuesday week2
+  10:
+  # Wednesday week2
   11:
     text: "Note:\n\n- Sprint Review"
-  # Wednesday week2
-  12:
   # Thursday week2
-  13:
+  12:
   # Friday week2
+  13:
+
+  # Monday week2
   14:
-  # Monday week3
-  17:
   # Tuesday week3
+  17:
+  # Wednesday week3
   18:
     text: "\n- Freeze"
-  # Wednesday week3
-  19:
   # Thursday week3
+  19:
+  # Friday week3
   20:
     text: "Note:\n\n- Retro (@retro-manager prepare it!)"
