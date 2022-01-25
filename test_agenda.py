@@ -69,6 +69,28 @@ class TestAgenda(unittest.TestCase):
             },
         )
 
+    def test_compute_message_with_different_offset(self):
+        config = '''
+---
+period: 3
+start: 2022-01-24
+recurring_messages:
+  - text: '%Y-%m-%d'
+messages:
+  0:
+  1:
+    offset: 0
+  2:
+    offset: 1
+        '''
+        conf = agenda.load_conf(StringIO(config))
+        now = datetime.datetime(2022, 1, 24, 0, 0)
+        self.assertEqual(agenda.compute_message(now, conf), '2022-01-24')
+        now = datetime.datetime(2022, 1, 25, 0, 0)
+        self.assertEqual(agenda.compute_message(now, conf), '2022-01-25')
+        now = datetime.datetime(2022, 1, 26, 0, 0)
+        self.assertEqual(agenda.compute_message(now, conf), '2022-01-27')
+
     @patch('agenda.find_oldest_github_prs', MagicMock(return_value=MagicMock(prs=[])))
     @patch('agenda.find_sprint_github_prs', MagicMock(return_value=MagicMock(prs=[])))
     def test_compute_message_no_old_pr(self):
