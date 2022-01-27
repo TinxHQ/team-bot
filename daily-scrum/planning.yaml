@@ -14,6 +14,8 @@ messages:
   3:
   # Wednesday week1
   4:
+    text: "\n- No daily scrum --> ~dev-weekly-scrum"
+    github_old_prs: false
   # Thursday week1
   5:
   # Friday week1
@@ -27,7 +29,8 @@ messages:
   10:
   # Wednesday week2
   11:
-    text: "Note:\n\n- Sprint Review"
+    text: "\n- No daily scrum --> ~dev-weekly-scrum"
+    github_old_prs: false
   # Thursday week2
   12:
   # Friday week2
@@ -39,7 +42,8 @@ messages:
   17:
   # Wednesday week3
   18:
-    text: "\n- Freeze"
+    text: "\n- No daily scrum --> ~dev-weekly-scrum \n- Freeze"
+    github_old_prs: false
   # Thursday week3
   19:
   # Friday week3
