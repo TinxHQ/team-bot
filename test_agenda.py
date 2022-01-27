@@ -113,6 +113,38 @@ messages:
             '# 2020-02-25\nAnother before\n- Grooming\nDaily note on 2020-02-25',
         )
 
+    @patch(
+        'agenda.find_oldest_github_prs',
+        MagicMock(return_value=MagicMock(count=1, prs=[MagicMock()])),
+    )
+    @patch(
+        'agenda.find_sprint_github_prs',
+        MagicMock(return_value=MagicMock(count=1, prs=[MagicMock()])),
+    )
+    def test_compute_message_override_github_old_prs(self):
+        config = '''
+---
+old_pr_threshold: 0
+period: 3
+start: 2022-01-24
+recurring_messages:
+  - text: '%Y-%m-%d'
+  - github_old_prs: true
+messages:
+  0:
+  1:
+    github_old_prs: true
+  2:
+    github_old_prs: false
+        '''
+        conf = agenda.load_conf(StringIO(config))
+        now = datetime.datetime(2022, 1, 24)
+        self.assertNotEqual(agenda.compute_message(now, conf), '2022-01-24')
+        now = datetime.datetime(2022, 1, 25)
+        self.assertNotEqual(agenda.compute_message(now, conf), '2022-01-25')
+        now = datetime.datetime(2022, 1, 26)
+        self.assertEqual(agenda.compute_message(now, conf), '2022-01-26')
+
     def test_github_filter_age(self):
         montreal_now = datetime.datetime(2020, 2, 21, 15, 0)
         with patch('agenda.montreal_now', montreal_now):

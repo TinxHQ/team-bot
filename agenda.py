@@ -80,7 +80,7 @@ def compute_message(today, conf):
                 if recurring_msg.get('text'):
                     list_to_append.append(new_date.strftime(recurring_msg['text']))
 
-            if recurring_msg.get('github_old_prs'):
+            if recurring_msg.get('github_old_prs') and data.get('github_old_prs', True):
                 minimum_age = conf['old_pr_threshold']
                 oldest_pr_list = find_oldest_github_prs(OLDEST_PR_MIN_AGE)
                 sprint_pr_list = find_sprint_github_prs(minimum_age)
