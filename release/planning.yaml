@@ -1,12 +1,10 @@
 ---
 period: 21
-start: 2022-01-07  # Friday before the first week of a sprint
+start: 2022-01-10  # The first week of the sprint
 messages:
   # Monday week2
-  10:
+  7:
     text: "EUC Stack Release"
-    offset: 1
   # Tuesday week2
-  11:
+  8:
     text: "EUC Stack Release (reminder)"
-    offset: 1
