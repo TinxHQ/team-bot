@@ -7,44 +7,44 @@ recurring_messages:
     before: true
   - github_old_prs: true
 messages:
-  # Monday week0
+  # Monday week1
   0:
     text: "Note:\n\n- Planning"
   # Tuesday week1
-  3:
+  1:
   # Wednesday week1
-  4:
+  2:
     text: "\n- No daily scrum --> ~dev-weekly-scrum"
     github_old_prs: false
   # Thursday week1
-  5:
+  3:
   # Friday week1
-  6:
+  4:
 
-  # Monday week1
+  # Monday week2
   7:
     text: "Note:\n\n- Wazo EUC Stack release"
   # Tuesday week2
-  10:
+  8:
   # Wednesday week2
-  11:
+  9:
     text: "\n- No daily scrum --> ~dev-weekly-scrum"
     github_old_prs: false
   # Thursday week2
-  12:
+  10:
   # Friday week2
-  13:
+  11:
 
-  # Monday week2
+  # Monday week3
   14:
   # Tuesday week3
-  17:
+  15:
   # Wednesday week3
-  18:
+  16:
     text: "\n- No daily scrum --> ~dev-weekly-scrum \n- Freeze"
     github_old_prs: false
   # Thursday week3
-  19:
+  17:
   # Friday week3
-  20:
+  18:
     text: "Note:\n\n- Retro (@retro-manager prepare it!)"
