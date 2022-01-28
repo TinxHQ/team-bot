@@ -1,0 +1,39 @@
+def WEEKLY_SCRUM_CHANNEL = 'dev-weekly-scrum';
+
+pipeline {
+
+  agent any
+
+  triggers {
+    cron('H 0 * * 3')
+  }
+
+  environment {
+    MATTERMOST_HOOK_URL = credentials("mattermost-teambot-hook")
+  }
+
+  stages {
+
+    stage ('Prepare') {
+      steps {
+        script {
+          currentBuild.description = "Teambot run for the weekly scrum"
+        }
+        checkout scm
+        sh 'pip3 install -r requirements.txt'
+      }
+    }
+
+    stage ('Run') {
+      steps {
+        sh "python3 ./agenda.py weekly-scrum/planning.yaml '$MATTERMOST_HOOK_URL' $WEEKLY_SCRUM_CHANNEL"
+      }
+    }
+  }
+
+  post {
+    failure {
+      mattermostSend color: "danger", message: "Teambot [failed :nuke:](${BUILD_URL}/console)"
+    }
+  }
+}

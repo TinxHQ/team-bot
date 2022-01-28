@@ -1,0 +1,18 @@
+---
+period: 21
+start: 2022-01-10  # The first week of the sprint
+old_pr_threshold: 4
+recurring_messages:
+  - text: "***\n# %Y-%m-%d - Weekly Scrum"
+    before: true
+  - github_old_prs: false
+messages:
+  # Wednesday week1
+  2:
+
+  # Wednesday week2
+  9:
+
+  # Wednesday week3
+  16:
+    text: "\n- Freeze"
