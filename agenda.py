@@ -5,6 +5,7 @@ import operator
 import os
 import pytz
 import requests
+import time
 import urllib
 import sys
 import yaml
@@ -109,10 +110,11 @@ def compute_message(today, conf):
 
 
 def get_github_prs(github, search_query, limit):
-    return [
-        result.issue.pull_request()
-        for result in github.search_issues(search_query, number=limit)
-    ]
+    results = []
+    for result in github.search_issues(search_query, number=limit):
+        time.sleep(1)  # mitigate github secondary rate limit
+        results.append(result.issue.pull_request())
+    return results
 
 
 def count_github_prs(github, search_query):
