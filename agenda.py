@@ -39,6 +39,12 @@ class PRList:
         self.prs = prs
         self.count = count
 
+    @staticmethod
+    def merge(pr_list_1, pr_list_2, pr_key):
+        prs = sorted(pr_list_1.prs + pr_list_2.prs, key=pr_key)
+        count = pr_list_1.count + pr_list_2.count
+        return PRList(prs, count)
+
 
 def send_message(url, message, channel=None):
     headers = {'Content-Type': 'application/json'}
@@ -108,15 +114,11 @@ def compute_message(today, conf):
     return None
 
 
-def get_github_prs(github, search_query, limit):
-    return [
-        result.issue.pull_request()
-        for result in github.search_issues(search_query, number=limit)
-    ]
+def get_github_pr_list(github, search_query, limit):
+    search_iterator = github.search_issues(search_query, number=limit)
+    prs = [result.issue.pull_request() for result in search_iterator]
 
-
-def count_github_prs(github, search_query):
-    return len(list(github.search_issues(search_query)))
+    return PRList(prs, search_iterator.total_count)
 
 
 def github_filter_age(minimum_age, maximum_age=None):
@@ -149,9 +151,7 @@ def generate_oldest_pr_github_query_params(minimum_age):
 def find_oldest_github_prs(minimum_age):
     github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
     query_params = generate_oldest_pr_github_query_params(minimum_age)
-    prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
-    count = count_github_prs(github, query_params)
-    return PRList(prs, count)
+    return get_github_pr_list(github, query_params, MAX_PR_COUNT_DISPLAYED)
 
 
 def generate_sprint_mergeit_github_query_params(minimum_age):
@@ -171,14 +171,14 @@ def generate_sprint_pls_review_github_query_params(minimum_age):
 def find_sprint_github_prs(minimum_age):
     github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
     query_params = generate_sprint_mergeit_github_query_params(minimum_age)
-    mergeit_prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
-    mergeit_count = count_github_prs(github, query_params)
+    mergeit_pr_list = get_github_pr_list(github, query_params, MAX_PR_COUNT_DISPLAYED)
     query_params = generate_sprint_pls_review_github_query_params(minimum_age)
-    please_review_prs = get_github_prs(github, query_params, MAX_PR_COUNT_DISPLAYED)
-    please_review_count = count_github_prs(github, query_params)
-    prs = sorted(mergeit_prs + please_review_prs, key=operator.attrgetter("updated_at"))
-    count = mergeit_count + please_review_count
-    return PRList(prs, count)
+    please_review_pr_list = get_github_pr_list(
+        github, query_params, MAX_PR_COUNT_DISPLAYED
+    )
+    return PRList.merge(
+        mergeit_pr_list, please_review_pr_list, pr_key=operator.attrgetter("updated_at")
+    )
 
 
 def format_pr_list(
