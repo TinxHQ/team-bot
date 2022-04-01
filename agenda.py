@@ -144,7 +144,7 @@ def github_query_params(filters):
 
 def generate_oldest_pr_github_query_params(minimum_age):
     return github_query_params(
-        GITHUB_SEARCH_QUERY_PARTS + [github_filter_age(minimum_age), '-label:Blocked']
+        GITHUB_SEARCH_QUERY_PARTS + [github_filter_age(minimum_age), '-label:Blocked', -'label:WIP', -label:'🏃 WIP']
     )
 
 
