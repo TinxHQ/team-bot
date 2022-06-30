@@ -1,0 +1,37 @@
+pipeline {
+
+  agent any
+
+  triggers {
+    cron('H 0 * * 1-5')
+  }
+
+
+  stages {
+
+    stage ('Prepare') {
+      steps {
+        script {
+          currentBuild.description = "Teambot run for the sprint review"
+        }
+        checkout scm
+        sh 'pip3 install -r requirements.txt'
+      }
+    }
+
+    stage ('Run') {
+      environment {
+        MATTERMOST_HOOK_URL = credentials("mattermost-teambot-hook")
+      }
+      steps {
+        sh 'python3 ./agenda.py sprint-review/planning.yaml "$MATTERMOST_HOOK_URL" release'
+      }
+    }
+  }
+
+  post {
+    failure {
+      mattermostSend color: "danger", message: "Teambot [failed :nuke:](${BUILD_URL}/console)"
+    }
+  }
+}
