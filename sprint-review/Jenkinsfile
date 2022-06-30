@@ -1,23 +1,18 @@
-def DAILY_CHANNELS = ['team-central'].join(' ');
-
 pipeline {
 
   agent any
 
   triggers {
-    cron('00 10 * * 1-2')
+    cron('H 0 * * 1-5')
   }
 
-  environment {
-    MATTERMOST_HOOK_URL = credentials("mattermost-teambot-hook")
-  }
 
   stages {
 
     stage ('Prepare') {
       steps {
         script {
-          currentBuild.description = "Teambot run for the release"
+          currentBuild.description = "Teambot run for the sprint review"
         }
         checkout scm
         sh 'pip3 install -r requirements.txt'
@@ -26,7 +21,7 @@ pipeline {
 
     stage ('Run') {
       environment {
-        GITHUB_CREDS = credentials('github-jenkins-wazo-bot')
+        MATTERMOST_HOOK_URL = credentials("mattermost-teambot-hook")
       }
       steps {
         sh 'python3 ./agenda.py sprint-review/planning.yaml "$MATTERMOST_HOOK_URL" release'
