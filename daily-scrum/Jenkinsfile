@@ -1,4 +1,4 @@
-def DAILY_CHANNELS = ['team-central', 'dev-squad-meetings', 'dev-squad-subscription'].join(' ');
+def DAILY_CHANNELS = ['team-central', 'dev-squad-subscription'].join(' ');
 
 pipeline {
 
