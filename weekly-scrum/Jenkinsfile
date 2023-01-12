@@ -20,13 +20,16 @@ pipeline {
           currentBuild.description = "Teambot run for the weekly scrum"
         }
         checkout scm
-        sh 'pip3 install -r requirements.txt'
+        sh "${WORKSPACE}/jenkins/prepare-virtualenv.sh ${venv}"
       }
     }
 
     stage ('Run') {
       steps {
-        sh "python3 ./agenda.py weekly-scrum/planning.yaml '$MATTERMOST_HOOK_URL' $WEEKLY_SCRUM_CHANNEL"
+        sh """
+          . ${venv}/bin/activate
+          python3 ./agenda.py weekly-scrum/planning.yaml '$MATTERMOST_HOOK_URL' $WEEKLY_SCRUM_CHANNEL
+        """
       }
     }
   }

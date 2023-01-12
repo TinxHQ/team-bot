@@ -24,7 +24,7 @@ pipeline {
           currentBuild.description = "Teambot run for the daily scrum"
         }
         checkout scm
-        sh 'pip3 install -r requirements.txt'
+        sh "${WORKSPACE}/jenkins/prepare-virtualenv.sh ${venv}"
       }
     }
 
@@ -33,7 +33,10 @@ pipeline {
         GITHUB_CREDS = credentials('github-jenkins-wazo-bot')
       }
       steps {
-        sh "python3 ./agenda.py daily-scrum/planning.yaml '$MATTERMOST_HOOK_URL' $DAILY_CHANNELS"
+        sh """
+          . ${venv}/bin/activate
+          python3 ./agenda.py daily-scrum/planning.yaml '$MATTERMOST_HOOK_URL' $DAILY_CHANNELS
+        """
       }
     }
   }
