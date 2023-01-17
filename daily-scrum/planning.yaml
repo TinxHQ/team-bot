@@ -1,6 +1,6 @@
 ---
 period: 21
-start: 2022-10-17  # The first week of the sprint
+start: 2023-01-16  # The first week of the sprint
 old_pr_threshold: 4
 recurring_messages:
   - text: "***\n# %Y-%m-%d"
