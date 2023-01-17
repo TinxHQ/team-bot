@@ -1,3 +1,4 @@
+def VENV = 'team-bot-venv'
 pipeline {
 
   agent any
@@ -18,7 +19,7 @@ pipeline {
           currentBuild.description = "Teambot run for the release"
         }
         checkout scm
-        sh "${WORKSPACE}/jenkins/prepare-virtualenv.sh ${venv}"
+        sh "${WORKSPACE}/jenkins/prepare-virtualenv.sh ${VENV}"
       }
     }
 
@@ -28,7 +29,7 @@ pipeline {
       }
       steps {
         sh """
-          . ${venv}/bin/activate
+          . ${VENV}/bin/activate
           python3 ./agenda.py release/planning.yaml "$MATTERMOST_HOOK_URL" release
         """
       }
