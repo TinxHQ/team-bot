@@ -4,7 +4,7 @@ start: 2023-01-16  # The first week of the sprint
 messages:
   # Monday week2
   7:
-    text: "EUC Stack Release"
+    text: "@release-manager Please release EUC Stack"
   # Tuesday week2
   8:
-    text: "EUC Stack Release (reminder)"
+    text: "@release-manager Please release EUC Stack (reminder)"
