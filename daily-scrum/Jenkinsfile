@@ -3,7 +3,6 @@ def DAILY_CHANNELS = [
   'team-central',
   'dev-squad-bullseye',
   'dev-squad-scalability',
-  'dev-squad-user-management',
   'dev-squad-whitelabel',
 ].join(' ');
 
