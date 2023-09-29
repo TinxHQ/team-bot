@@ -20,7 +20,7 @@ pipeline {
     }
     stage('Unit tests') {
       steps {
-        sh 'tox -e py37'
+        sh 'tox -e py39'
       }
     }
   }
