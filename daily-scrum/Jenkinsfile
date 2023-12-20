@@ -1,8 +1,8 @@
 def VENV = 'team-bot-venv'
 def DAILY_CHANNELS = [
   'team-central',
-  'dev-squad-scalability',
-  'dev-squad-whitelabel',
+  //'dev-squad-scalability',
+  //'dev-squad-whitelabel',
 ].join(' ');
 
 pipeline {
