@@ -1,6 +1,6 @@
 ---
 period: 21
-start: 2023-01-16  # The first week of the sprint
+start: 2023-12-25  # The first monday of the sprint
 old_pr_threshold: 4
 recurring_messages:
   - text: "***\n# %Y-%m-%d - Weekly Scrum"
