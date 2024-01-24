@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
-import github3
 import operator
 import os
+import sys
+import urllib
+from datetime import datetime, timedelta
+
+import github3
 import pytz
 import requests
-import urllib
-import sys
 import yaml
-
-from datetime import timedelta, datetime
 
 GITHUB_SEARCH_QUERY_PARTS = [
     'is:open',
@@ -232,7 +232,7 @@ if __name__ == "__main__":
         print('Usage: %s <conf> <url> <chan>' % sys.argv[0], file=sys.stderr)
         sys.exit(1)
 
-    with open(conf_file_path, 'r') as conf_file:
+    with open(conf_file_path) as conf_file:
         conf = load_conf(conf_file)
     now = datetime.now()
     message = compute_message(now, conf)

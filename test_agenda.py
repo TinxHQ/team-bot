@@ -2,10 +2,10 @@
 
 import datetime
 import unittest
-import pytz
-
 from io import StringIO
 from unittest.mock import MagicMock, patch
+
+import pytz
 
 import agenda
 
