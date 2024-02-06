@@ -12,7 +12,8 @@ messages:
 
   # Wednesday week2
   9:
+    text: "\n- 🕵🏻 Check `Ready For Review` issue(s)"
 
   # Wednesday week3
   16:
-    text: "\n- Freeze"
+    text: "\n- 🥶 Freeze"
