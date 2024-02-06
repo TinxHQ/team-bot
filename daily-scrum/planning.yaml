@@ -41,7 +41,7 @@ messages:
   15:
   # Wednesday week3
   16:
-    text: "\n- No daily scrum --> ~dev-weekly-scrum \n- Freeze"
+    text: "\n- No daily scrum --> ~dev-weekly-scrum \n- 🥶 Freeze"
     github_old_prs: false
   # Thursday week3
   17:
