@@ -3,6 +3,7 @@ def DAILY_CHANNELS = [
   'team-central',
   'dev-squad-scalability',
   'dev-squad-whitelabel',
+  'dev-squad-callerid',
 ].join(' ');
 
 pipeline {
