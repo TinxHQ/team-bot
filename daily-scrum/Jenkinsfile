@@ -4,6 +4,7 @@ def DAILY_CHANNELS = [
   'dev-squad-scalability',
   'dev-squad-whitelabel',
   'dev-squad-callerid',
+  'dev-squad-saml',
 ].join(' ');
 
 pipeline {
