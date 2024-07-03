@@ -8,7 +8,8 @@ recurring_messages:
   - github_old_prs: false
 messages:
   # Wednesday week1
-  2:
+  # Skipped - Pre-Plan
+  # 2:
 
   # Wednesday week2
   9:
