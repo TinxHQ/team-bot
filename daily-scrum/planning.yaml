@@ -14,7 +14,7 @@ messages:
   1:
   # Wednesday week1
   2:
-    text: "\n- No daily scrum --> ~dev-weekly-scrum"
+    text: "\n- No daily scrum --> Pre-Plan"
     github_old_prs: false
   # Thursday week1
   3:
