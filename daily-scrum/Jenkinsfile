@@ -2,6 +2,7 @@ def VENV = 'team-bot-venv'
 def DAILY_CHANNELS = [
   'team-central',
   'dev-squad-infra',
+  'dev-squad-edge',
 ].join(' ');
 
 pipeline {
