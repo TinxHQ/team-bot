@@ -1,6 +1,6 @@
 ---
 period: 21
-start: 2023-12-25  # The first monday of the sprint
+start: 2024-12-23  # The first monday of the sprint
 old_pr_threshold: 4
 recurring_messages:
   - text: "***\n# %Y-%m-%d\n[☑️ Daily Checklist](https://docs.google.com/document/d/14rPQgNPit_Q4G0US6lF-tiq4iYQIlvkqcDXGUm3jLfY/edit?pli=1#heading=h.ad4w6oq2zi9g)"
