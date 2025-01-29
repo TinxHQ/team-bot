@@ -1,6 +1,6 @@
 ---
 period: 21
-start: 2024-12-23  # The first monday of the sprint
+start: 2025-02-03  # The first monday of the sprint
 old_pr_threshold: 4
 recurring_messages:
   - text: "***\n# %Y-%m-%d\n[☑️ Daily Checklist](https://docs.google.com/document/d/14rPQgNPit_Q4G0US6lF-tiq4iYQIlvkqcDXGUm3jLfY/edit?pli=1#heading=h.ad4w6oq2zi9g)"
@@ -14,8 +14,6 @@ messages:
   1:
   # Wednesday week1
   2:
-    text: "\n- No daily scrum --> ~dev-weekly-scrum"
-    github_old_prs: false
   # Thursday week1
   3:
   # Friday week1
@@ -28,8 +26,6 @@ messages:
   8:
   # Wednesday week2
   9:
-    text: "\n- No daily scrum --> ~dev-weekly-scrum"
-    github_old_prs: false
   # Thursday week2
   10:
   # Friday week2
@@ -41,8 +37,7 @@ messages:
   15:
   # Wednesday week3
   16:
-    text: "\n- No daily scrum --> ~dev-weekly-scrum \n- 🥶 Freeze"
-    github_old_prs: false
+     text: "- 🥶 Freeze"
   # Thursday week3
   17:
   # Friday week3
