@@ -3,7 +3,9 @@ def WEEKLY_SCRUM_CHANNEL = 'dev-weekly-scrum';
 
 pipeline {
 
-  agent any
+  agent {
+    label 'general'
+  }
 
   triggers {
     cron('H 0 * * 3')

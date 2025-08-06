@@ -1,7 +1,9 @@
 def VENV = 'team-bot-venv'
 pipeline {
 
-  agent any
+  agent {
+    label 'general'
+  }
 
   triggers {
     cron('00 10 * * 1-2')
