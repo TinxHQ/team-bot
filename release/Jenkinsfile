@@ -30,7 +30,7 @@ pipeline {
       steps {
         sh """
           . ${VENV}/bin/activate
-          python3 ./agenda.py release/planning.yaml "$MATTERMOST_HOOK_URL" release
+          python3 ./agenda.py release/planning.yaml "$MATTERMOST_HOOK_URL" release-process
         """
       }
     }
