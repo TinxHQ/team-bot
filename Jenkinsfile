@@ -1,5 +1,7 @@
 pipeline {
-  agent any
+  agent {
+    label 'general'
+  }
   triggers {
     githubPush()
     pollSCM('H H * * *')
