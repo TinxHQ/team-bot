@@ -1,6 +1,6 @@
 pipeline {
   agent {
-    label 'general'
+    label 'general-debian12-small'
   }
   triggers {
     githubPush()
@@ -22,7 +22,7 @@ pipeline {
     }
     stage('Unit tests') {
       steps {
-        sh 'tox -e py39'
+        sh 'tox -e py311'
       }
     }
   }

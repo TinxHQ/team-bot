@@ -5,21 +5,16 @@ def DAILY_CHANNELS = [
 ].join(' ');
 
 pipeline {
-
   agent {
-    label 'general'
+    label 'general-debian12-small'
   }
-
   triggers {
     cron('H 0 * * 1-5')
   }
-
   environment {
     MATTERMOST_HOOK_URL = credentials("mattermost-teambot-hook")
   }
-
   stages {
-
     stage ('Prepare') {
       steps {
         script {
@@ -29,7 +24,6 @@ pipeline {
         sh "${WORKSPACE}/jenkins/prepare-virtualenv.sh ${VENV}"
       }
     }
-
     stage ('Run') {
       environment {
         GITHUB_CREDS = credentials('github-jenkins-wazo-bot')
@@ -42,7 +36,6 @@ pipeline {
       }
     }
   }
-
   post {
     failure {
       mattermostSend color: "danger", message: "Teambot [failed :nuke:](${BUILD_URL}/console)"

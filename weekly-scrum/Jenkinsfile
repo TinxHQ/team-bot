@@ -2,21 +2,16 @@ def VENV = 'team-bot-venv'
 def WEEKLY_SCRUM_CHANNEL = 'dev-weekly-scrum';
 
 pipeline {
-
   agent {
-    label 'general'
+    label 'general-debian12-small'
   }
-
   triggers {
     cron('H 0 * * 3')
   }
-
   environment {
     MATTERMOST_HOOK_URL = credentials("mattermost-teambot-hook")
   }
-
   stages {
-
     stage ('Prepare') {
       steps {
         script {
@@ -26,7 +21,6 @@ pipeline {
         sh "${WORKSPACE}/jenkins/prepare-virtualenv.sh ${VENV}"
       }
     }
-
     stage ('Run') {
       steps {
         sh """
@@ -36,7 +30,6 @@ pipeline {
       }
     }
   }
-
   post {
     failure {
       mattermostSend color: "danger", message: "Teambot [failed :nuke:](${BUILD_URL}/console)"
