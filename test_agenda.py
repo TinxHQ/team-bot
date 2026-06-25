@@ -145,6 +145,41 @@ messages:
         now = datetime.datetime(2022, 1, 26)
         self.assertEqual(agenda.compute_message(now, conf), '2022-01-26')
 
+    def test_get_github_pr_list_parses_advanced_search_payload(self):
+        session = MagicMock()
+        session.get.return_value = MagicMock(
+            json=MagicMock(
+                return_value={
+                    'total_count': 7,
+                    'items': [
+                        {
+                            'number': 42,
+                            'title': 'Test PR',
+                            'html_url': 'an_url',
+                            'updated_at': '2026-06-20T15:30:00Z',
+                            'repository_url': 'https://api.github.com/repos/wazo/test_repo',
+                        }
+                    ],
+                }
+            )
+        )
+
+        pr_list = agenda.get_github_pr_list(session, 'a query', limit=5)
+
+        session.get.assert_called_once_with(
+            agenda.GITHUB_SEARCH_ISSUES_URL,
+            params={'q': 'a query', 'advanced_search': 'true', 'per_page': 5},
+        )
+        assert pr_list.count == 7
+        assert len(pr_list.prs) == 1
+        pr = pr_list.prs[0]
+        assert pr.number == 42
+        assert pr.repository_name == 'test_repo'
+        assert pr.html_url == 'an_url'
+        assert pr.updated_at == datetime.datetime.fromisoformat(
+            '2026-06-20T15:30:00+00:00'
+        )
+
     def test_github_filter_age(self):
         montreal_now = datetime.datetime(2020, 2, 21, 15, 0)
         with patch('agenda.montreal_now', montreal_now):
@@ -199,24 +234,20 @@ messages:
         pr2_date = MTL_TZ.localize(datetime.datetime(2020, 3, 21, 15, 0))
         pr1_age = (MTL_TZ.localize(datetime.datetime.now()) - pr1_date).days
         pr2_age = (MTL_TZ.localize(datetime.datetime.now()) - pr2_date).days
-        repository1 = MagicMock()
-        repository1.name = 'test_repo'
-        repository2 = MagicMock()
-        repository2.name = 'test_repo2'
         sprint_pr_list = oldest_pr_list = MagicMock(
             count=2,
             prs=[
-                MagicMock(
+                agenda.Pr(
                     updated_at=pr1_date,
                     title='Test PR',
-                    repository=repository1,
+                    repository_name='test_repo',
                     number=42,
                     html_url='an_url',
                 ),
-                MagicMock(
+                agenda.Pr(
                     updated_at=pr2_date,
                     title='Test PR 2',
-                    repository=repository2,
+                    repository_name='test_repo2',
                     number=43,
                     html_url='an_url2',
                 ),
