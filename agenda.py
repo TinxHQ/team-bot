@@ -148,20 +148,24 @@ def get_github_pr_list(session, search_query, limit):
     return PRList(prs, payload['total_count'])
 
 
+def github_date(dt):
+    return dt.astimezone(pytz.utc).isoformat(timespec='seconds')
+
+
 def github_filter_age(minimum_age, maximum_age=None):
     def minimum_open_days(days):
         if days >= montreal_now.isoweekday():
             return days + 2  # skip saturday + sunday of the last week-end
         return days
 
-    date_range = maximum_age - minimum_age if maximum_age else 0
     minimum_age_open_days = minimum_open_days(minimum_age)
-    latest_date = (montreal_now - timedelta(days=minimum_age_open_days)).isoformat()
+    latest_date = github_date(montreal_now - timedelta(days=minimum_age_open_days))
 
-    open_range = minimum_age_open_days + date_range
-    earliest_date_from_now = (montreal_now - timedelta(days=open_range)).isoformat()
-    earliest_date = '*' if not maximum_age else earliest_date_from_now
+    if maximum_age is None:
+        return f'updated:<={latest_date}'
 
+    open_range = minimum_age_open_days + (maximum_age - minimum_age)
+    earliest_date = github_date(montreal_now - timedelta(days=open_range))
     return f'updated:{earliest_date}..{latest_date}'
 
 

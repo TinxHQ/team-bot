@@ -181,40 +181,46 @@ messages:
         )
 
     def test_github_filter_age(self):
-        montreal_now = datetime.datetime(2020, 2, 21, 15, 0)
+        # Montreal is EST (-05:00) in February; dates are emitted in UTC so the
+        # offset is +00:00, avoiding the leading `-` the web UI treats as
+        # negation. 15:00 EST -> 20:00 UTC.
+        montreal_now = MTL_TZ.localize(datetime.datetime(2020, 2, 21, 15, 0))
         with patch('agenda.montreal_now', montreal_now):
             assert (
                 agenda.github_filter_age(minimum_age=0, maximum_age=None)
-                == f'updated:*..{montreal_now.isoformat()}'
+                == 'updated:<=2020-02-21T20:00:00+00:00'
             )
 
-        montreal_now = datetime.datetime(2020, 2, 21, 15, 0)
-        minimum_age = datetime.datetime(2020, 2, 20, 15, 0)
+        # The web search UI rejects fractional seconds, so they are dropped.
+        montreal_now = MTL_TZ.localize(datetime.datetime(2020, 2, 21, 15, 0, 0, 123456))
+        with patch('agenda.montreal_now', montreal_now):
+            assert (
+                agenda.github_filter_age(minimum_age=0, maximum_age=None)
+                == 'updated:<=2020-02-21T20:00:00+00:00'
+            )
+
+        montreal_now = MTL_TZ.localize(datetime.datetime(2020, 2, 21, 15, 0))
         with patch('agenda.montreal_now', montreal_now):
             assert (
                 agenda.github_filter_age(minimum_age=1, maximum_age=None)
-                == f'updated:*..{minimum_age.isoformat()}'
+                == 'updated:<=2020-02-20T20:00:00+00:00'
             )
 
-        montreal_now = datetime.datetime(2020, 2, 21, 15, 0)
-        minimum_age = datetime.datetime(2020, 2, 20, 15, 0)
-        maximum_age = datetime.datetime(2020, 2, 18, 15, 0)
+        montreal_now = MTL_TZ.localize(datetime.datetime(2020, 2, 21, 15, 0))
         with patch('agenda.montreal_now', montreal_now):
             assert (
                 agenda.github_filter_age(minimum_age=1, maximum_age=3)
-                == f'updated:{maximum_age.isoformat()}..{minimum_age.isoformat()}'
+                == 'updated:2020-02-18T20:00:00+00:00..2020-02-20T20:00:00+00:00'
             )
 
         # 2020-02-21 is Friday
-        montreal_now = datetime.datetime(2020, 2, 21, 15, 0)
         # 6 days ago is Saturday -> skip the weekend (2 days) -> Thursday 2020-02-13
-        minimum_age = datetime.datetime(2020, 2, 13, 15, 0)
         # 7 days ago is Friday -> skip the weekend (2 days) -> Wednesday 2020-02-12
-        maximum_age = datetime.datetime(2020, 2, 12, 15, 0)
+        montreal_now = MTL_TZ.localize(datetime.datetime(2020, 2, 21, 15, 0))
         with patch('agenda.montreal_now', montreal_now):
             assert (
                 agenda.github_filter_age(minimum_age=6, maximum_age=7)
-                == f'updated:{maximum_age.isoformat()}..{minimum_age.isoformat()}'
+                == 'updated:2020-02-12T20:00:00+00:00..2020-02-13T20:00:00+00:00'
             )
 
     def test_format_pr_list_empty(self):
