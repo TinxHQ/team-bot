@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import collections
 import operator
 import os
 import sys
@@ -11,20 +12,27 @@ import pytz
 import requests
 import yaml
 
+# A space between `user:` qualifiers means AND under GitHub's advanced search
+# (the API default since 2025-09-04) and OR under the legacy default. To match
+# the web UI and stay correct under both, group them explicitly and request
+# advanced search on every fetch (see get_github_pr_list).
 GITHUB_SEARCH_QUERY_PARTS = [
     'is:open',
     'is:pr',
     'archived:false',
-    'user:wazo-platform',
-    'user:TinxHQ',
-    'user:wazo-communication',
+    '(user:wazo-platform OR user:TinxHQ OR user:wazo-communication)',
     'sort:updated-asc',
     'draft:false',
     '-author:app/dependabot',
 ]
 
-GITHUB_USER = os.getenv('GITHUB_CREDS_USR')
-GITHUB_PASSWORD = os.getenv('GITHUB_CREDS_PSW')
+GITHUB_SEARCH_ISSUES_URL = 'https://api.github.com/search/issues'
+# A personal access token; basic auth with a PAT is rejected by GitHub.
+GITHUB_TOKEN = os.getenv('GITHUB_CREDS_PSW')
+
+Pr = collections.namedtuple(
+    'Pr', ['number', 'title', 'html_url', 'updated_at', 'repository_name']
+)
 
 MAX_PR_COUNT_DISPLAYED = 5
 SPRINT_MAX_AGE = 21
@@ -114,11 +122,34 @@ def compute_message(today, conf):
     return None
 
 
-def get_github_pr_list(github, search_query, limit):
-    search_iterator = github.search_issues(search_query, number=limit)
-    prs = [result.issue.pull_request() for result in search_iterator]
+def github_session():
+    return github3.login(token=GITHUB_TOKEN).session
 
-    return PRList(prs, search_iterator.total_count)
+
+def parse_pr(item):
+    return Pr(
+        number=item['number'],
+        title=item['title'],
+        html_url=item['html_url'],
+        updated_at=datetime.fromisoformat(item['updated_at'].replace('Z', '+00:00')),
+        repository_name=item['repository_url'].rsplit('/', 1)[-1],
+    )
+
+
+def get_github_pr_list(session, search_query, limit):
+    # github3.search_issues() can't pass advanced_search, so hit the endpoint
+    # directly. The issue-search payload already carries everything we display,
+    # which also avoids a pull_request() round-trip per result.
+    params = {'q': search_query, 'advanced_search': 'true', 'per_page': limit}
+    resp = session.get(GITHUB_SEARCH_ISSUES_URL, params=params)
+    resp.raise_for_status()
+    payload = resp.json()
+    prs = [parse_pr(item) for item in payload['items']]
+    return PRList(prs, payload['total_count'])
+
+
+def github_date(dt):
+    return dt.astimezone(pytz.utc).isoformat(timespec='seconds')
 
 
 def github_filter_age(minimum_age, maximum_age=None):
@@ -127,14 +158,14 @@ def github_filter_age(minimum_age, maximum_age=None):
             return days + 2  # skip saturday + sunday of the last week-end
         return days
 
-    date_range = maximum_age - minimum_age if maximum_age else 0
     minimum_age_open_days = minimum_open_days(minimum_age)
-    latest_date = (montreal_now - timedelta(days=minimum_age_open_days)).isoformat()
+    latest_date = github_date(montreal_now - timedelta(days=minimum_age_open_days))
 
-    open_range = minimum_age_open_days + date_range
-    earliest_date_from_now = (montreal_now - timedelta(days=open_range)).isoformat()
-    earliest_date = '*' if not maximum_age else earliest_date_from_now
+    if maximum_age is None:
+        return f'updated:<={latest_date}'
 
+    open_range = minimum_age_open_days + (maximum_age - minimum_age)
+    earliest_date = github_date(montreal_now - timedelta(days=open_range))
     return f'updated:{earliest_date}..{latest_date}'
 
 
@@ -150,9 +181,9 @@ def generate_oldest_pr_github_query_params(minimum_age):
 
 
 def find_oldest_github_prs(minimum_age):
-    github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
+    session = github_session()
     query_params = generate_oldest_pr_github_query_params(minimum_age)
-    return get_github_pr_list(github, query_params, MAX_PR_COUNT_DISPLAYED)
+    return get_github_pr_list(session, query_params, MAX_PR_COUNT_DISPLAYED)
 
 
 def generate_sprint_mergeit_github_query_params(minimum_age):
@@ -170,12 +201,12 @@ def generate_sprint_pls_review_github_query_params(minimum_age):
 
 
 def find_sprint_github_prs(minimum_age):
-    github = github3.GitHub(GITHUB_USER, GITHUB_PASSWORD)
+    session = github_session()
     query_params = generate_sprint_mergeit_github_query_params(minimum_age)
-    mergeit_pr_list = get_github_pr_list(github, query_params, MAX_PR_COUNT_DISPLAYED)
+    mergeit_pr_list = get_github_pr_list(session, query_params, MAX_PR_COUNT_DISPLAYED)
     query_params = generate_sprint_pls_review_github_query_params(minimum_age)
     please_review_pr_list = get_github_pr_list(
-        github, query_params, MAX_PR_COUNT_DISPLAYED
+        session, query_params, MAX_PR_COUNT_DISPLAYED
     )
     return PRList.merge(
         mergeit_pr_list, please_review_pr_list, pr_key=operator.attrgetter("updated_at")
@@ -207,7 +238,7 @@ def format_pr_list(
             f'#### {count}Sprint PRs ([mergeit]({mergeit_url}) | [Please review]({review_url}))'
         )
         for pr in sprint_pr_list.prs[:MAX_PR_COUNT_DISPLAYED]:
-            line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'
+            line = f'- **{pr_age(pr)} days**: [{pr.repository_name} #{pr.number}]({pr.html_url}) {pr.title}'
             message_lines.append(line)
 
     if oldest_pr_list.prs:
@@ -217,7 +248,7 @@ def format_pr_list(
             f'#### [{count}Old PRs]({pr_list_url(oldest_query_params)})'
         )
         for pr in oldest_pr_list.prs[:MAX_PR_COUNT_DISPLAYED]:
-            line = f'- **{pr_age(pr)} days**: [{pr.repository.name} #{pr.number}]({pr.html_url}) {pr.title}'
+            line = f'- **{pr_age(pr)} days**: [{pr.repository_name} #{pr.number}]({pr.html_url}) {pr.title}'
             message_lines.append(line)
 
     return message_lines
