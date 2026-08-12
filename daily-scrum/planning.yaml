@@ -9,7 +9,6 @@ recurring_messages:
 messages:
   # Monday week1
   0:
-    text: "Note:\n\n- Planning"
   # Tuesday week1
   1:
   # Wednesday week1
@@ -21,7 +20,6 @@ messages:
 
   # Monday week2
   7:
-    text: "Note:\n\n- Wazo EUC Stack release"
   # Tuesday week2
   8:
   # Wednesday week2
@@ -37,9 +35,7 @@ messages:
   15:
   # Wednesday week3
   16:
-     text: "- 🥶 Freeze"
   # Thursday week3
   17:
   # Friday week3
   18:
-    text: "Note:\n\n- Retro (@retro-manager prepare it!)"
