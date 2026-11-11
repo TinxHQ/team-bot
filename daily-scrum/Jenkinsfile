@@ -5,7 +5,7 @@ def DAILY_CHANNELS = [
 
 pipeline {
   agent {
-    label 'general-debian12-small'
+    label 'general-amd64-debian12-small'
   }
   triggers {
     cron('H 0 * * 1-5')
