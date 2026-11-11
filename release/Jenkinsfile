@@ -1,7 +1,7 @@
 def VENV = 'team-bot-venv'
 pipeline {
   agent {
-    label 'general-debian12-small'
+    label 'general-amd64-debian12-small'
   }
   triggers {
     cron('00 10 * * 1-2')
